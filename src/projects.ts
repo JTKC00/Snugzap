@@ -2,8 +2,9 @@ export type Project = {
   name: string
   summary: string
   detail?: string
-  status: 'In development'
+  status: 'In development' | 'Dormant · Future Revival'
   type: 'Desktop utility' | 'Mobile app' | 'Web app' | 'Game'
+  technologies?: readonly string[]
   href?: string
   linkLabel?: string
   external?: boolean
@@ -36,6 +37,18 @@ export const projects: readonly Project[] = [
     type: 'Game',
     href: 'https://jtkc00.github.io/ECHOES/',
     linkLabel: 'Play web demo',
+    external: true,
+  },
+  {
+    name: 'Bookstore',
+    summary: 'A legacy Django e-commerce project with a future beyond its original classroom roots.',
+    detail:
+      'Originally a free-form team project led by James while learning Django, then continued independently as Bookstore 2.0. It is not in active development; a future revival would modernize its architecture, security, testing and UX.',
+    status: 'Dormant · Future Revival',
+    type: 'Web app',
+    technologies: ['Django', 'Python', 'PostgreSQL', 'FastAPI', 'Stripe'],
+    href: 'https://github.com/JTKC00/bookstore_2.0',
+    linkLabel: 'View repository',
     external: true,
   },
 ]

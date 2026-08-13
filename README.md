@@ -33,4 +33,6 @@ Netlify runs `npm run build` and publishes `dist`. The configuration does not co
 
 ## Content structure
 
-Project metadata lives in `src/projects.ts`. An optional `href`, link label and external-link flag are ready for verified public project destinations as they become available.
+Project metadata lives in `src/projects.ts`. Optional technology tags, an `href`, link label and external-link flag support concise context and verified public project destinations.
+
+Current work is listed before dormant work. **Bookstore — Dormant / Future Revival** preserves a legacy Django e-commerce project planned for a future architecture, security, testing and UX revival; it is not currently in active development.

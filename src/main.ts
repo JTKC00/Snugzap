@@ -4,12 +4,13 @@ import { projects, type Project } from './projects.ts'
 const externalArrow = '<span aria-hidden="true">↗</span>'
 
 const renderProject = (project: Project, index: number): string => {
+  const isDormant = project.status.startsWith('Dormant')
   const projectLink = project.href
     ? `<a class="project-link" href="${project.href}"${project.external ? ' target="_blank" rel="noreferrer"' : ''}>${project.linkLabel ?? 'View project'} ${project.external ? externalArrow : '<span aria-hidden="true">→</span>'}</a>`
     : '<span class="project-progress">More soon</span>'
 
   return `
-    <article class="project-card reveal" style="--delay: ${index * 70}ms">
+    <article class="project-card${isDormant ? ' project-card--dormant' : ''} reveal" style="--delay: ${index * 70}ms">
       <div class="project-meta">
         <span>${project.type}</span>
         <span class="project-number" aria-hidden="true">0${index + 1}</span>
@@ -18,9 +19,10 @@ const renderProject = (project: Project, index: number): string => {
         <h3>${project.name}</h3>
         <p class="project-summary">${project.summary}</p>
         ${project.detail ? `<p class="project-detail">${project.detail}</p>` : ''}
+        ${project.technologies ? `<ul class="project-tags" aria-label="Technologies">${project.technologies.map((technology) => `<li>${technology}</li>`).join('')}</ul>` : ''}
       </div>
       <div class="project-footer">
-        <span class="status"><span class="status-dot" aria-hidden="true"></span>${project.status}</span>
+        <span class="status${isDormant ? ' status--dormant' : ''}"><span class="status-dot" aria-hidden="true"></span>${project.status}</span>
         ${projectLink}
       </div>
     </article>
@@ -61,8 +63,8 @@ app.innerHTML = `
       <div class="section-heading">
         <p class="section-index">01 / Selected work</p>
         <div>
-          <h2 id="projects-title">Projects in progress.</h2>
-          <p>Useful tools and small worlds, each finding its way into focus.</p>
+          <h2 id="projects-title">Projects, present and future.</h2>
+          <p>Useful tools and small worlds in active development, followed by work preserved for a future return.</p>
         </div>
       </div>
       <div class="project-grid">
