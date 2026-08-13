@@ -253,6 +253,10 @@ nav a:hover,
   transform: translateY(-4px);
 }
 
+.project-card--dormant {
+  background: rgb(235 231 221 / 55%);
+}
+
 .project-meta,
 .project-footer {
   display: flex;
@@ -298,6 +302,23 @@ nav a:hover,
   line-height: 1.6;
 }
 
+.project-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.project-tags li {
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+
 .status {
   display: inline-flex;
   align-items: center;
@@ -311,6 +332,10 @@ nav a:hover,
   height: 6px;
   border-radius: 50%;
   background: currentcolor;
+}
+
+.status--dormant {
+  color: var(--muted);
 }
 
 .project-link,
