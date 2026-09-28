@@ -93,7 +93,7 @@ app.innerHTML = `
       <div class="hero-copy reveal">
         <p class="eyebrow">Independent software &amp; games by James</p>
         <h1 id="hero-title">Snug<span>zap</span></h1>
-        <p class="hero-tagline">Useful tools. Small worlds. Built with care.</p>
+        <p class="hero-tagline">Useful tools. Small worlds.<br>Built with care.</p>
         <p class="hero-description">A small independent home for practical software, thoughtful experiments and playable worlds.</p>
       </div>
       <div class="hero-foot">

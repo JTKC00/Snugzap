@@ -121,6 +121,8 @@ nav a,
 .footer-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-width: 44px;
   min-height: 44px;
   font-size: 0.84rem;
   color: var(--muted);
@@ -175,7 +177,7 @@ nav a:hover,
 }
 
 .hero-tagline {
-  max-width: 16ch;
+  max-width: 12em;
   margin: clamp(32px, 5vh, 56px) 0 0;
   font-family: Georgia, "Times New Roman", serif;
   font-size: clamp(1.85rem, 3.4vw, 3.15rem);
@@ -254,6 +256,7 @@ nav a:hover,
   font-weight: 400;
   line-height: 1.08;
   letter-spacing: -0.04em;
+  text-wrap: balance;
 }
 
 .section-heading h2 {
@@ -514,7 +517,7 @@ nav a:hover,
 }
 
 .about h2 {
-  max-width: 14ch;
+  max-width: 11em;
   font-size: clamp(2.6rem, 5.6vw, 5.2rem);
 }
 
@@ -584,9 +587,7 @@ nav a:hover,
     border-left: 0;
   }
 
-  .about h2,
-  .project-body h3,
-  .hero-tagline {
+  .project-body h3 {
     max-width: none;
   }
 }
