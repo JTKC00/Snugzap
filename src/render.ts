@@ -1,4 +1,3 @@
-import './styles.css'
 import {
   activeProjects,
   archivedProjects,
@@ -7,14 +6,30 @@ import {
   type ProjectLink,
   type ProjectStatus,
 } from './projects.ts'
+import {
+  canonicalUrl,
+  indexablePages,
+  isIndexableContext,
+  site,
+  socialImageUrl,
+  websiteJsonLd,
+  type DeployContext,
+} from './site.ts'
 
-const escapeHtml = (value: string): string =>
+export type RenderedPage = 'home' | 'not-found'
+
+const externalArrow = '<span aria-hidden="true">↗</span>'
+
+export const escapeHtml = (value: string): string =>
   value
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;')
+
+export const serializeJsonLd = (value: unknown): string =>
+  JSON.stringify(value).replaceAll('<', '\\u003c').replaceAll('>', '\\u003e').replaceAll('&', '\\u0026')
 
 const statusClassName = (status: ProjectStatus): string => {
   switch (status) {
@@ -37,7 +52,7 @@ const statusClassName = (status: ProjectStatus): string => {
 const renderLink = (link: ProjectLink): string => {
   const className = link.primary === true ? 'project-link project-link--primary' : 'project-link'
   const attributes = link.external === true ? ' target="_blank" rel="noreferrer"' : ''
-  const arrow = link.external === true ? ' <span aria-hidden="true">↗</span>' : ''
+  const arrow = link.external === true ? ` ${externalArrow}` : ''
 
   return `<a class="${className}" href="${escapeHtml(link.href)}"${attributes}>${escapeHtml(link.label)}${arrow}</a>`
 }
@@ -72,21 +87,32 @@ const renderProject = (project: Project, variant: 'featured' | 'compact' | 'arch
 const renderProjects = (items: readonly Project[], variant: 'featured' | 'compact' | 'archived'): string =>
   items.map((project, index) => renderProject(project, variant, index)).join('')
 
-const app = document.querySelector<HTMLDivElement>('#app')
+const sectionHref = (id: string, page: RenderedPage): string => (page === 'home' ? `#${id}` : `/#${id}`)
 
-if (!app) {
-  throw new Error('App root was not found')
-}
-
-app.innerHTML = `
+const renderHeader = (page: RenderedPage): string => `
   <header class="site-header">
-    <a class="wordmark" href="#top">Snugzap<span class="wordmark-dot" aria-hidden="true"></span></a>
+    <a class="wordmark" href="${page === 'home' ? '#top' : '/'}">Snugzap<span class="wordmark-dot" aria-hidden="true"></span></a>
     <nav aria-label="Main navigation">
-      <a href="#projects">Projects</a>
-      <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes <span aria-hidden="true">↗</span></a>
-      <a href="#about">About</a>
+      <a href="${sectionHref('projects', page)}">Projects</a>
+      <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes ${externalArrow}</a>
+      <a href="${sectionHref('about', page)}">About</a>
     </nav>
   </header>
+`
+
+const renderFooter = (): string => `
+  <footer class="site-footer">
+    <p>© 2026 Snugzap</p>
+    <p class="footer-note">Comfort, simplicity and speed.</p>
+    <nav class="footer-links" aria-label="Footer">
+      <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes ${externalArrow}</a>
+      <a href="${escapeHtml(site.author.url)}" target="_blank" rel="noreferrer">GitHub ${externalArrow}</a>
+    </nav>
+  </footer>
+`
+
+const renderHome = (): string => `
+  ${renderHeader('home')}
 
   <main id="main-content">
     <section class="hero" id="top" aria-labelledby="hero-title">
@@ -148,7 +174,7 @@ app.innerHTML = `
         </div>
         <div class="notes-copy">
           <p>Thoughts, learning, observations and things worth remembering.</p>
-          <a class="text-link" href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Visit Notes <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Visit Notes ${externalArrow}</a>
         </div>
       </div>
     </section>
@@ -165,12 +191,108 @@ app.innerHTML = `
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>© 2026 Snugzap</p>
-    <p class="footer-note">Comfort, simplicity and speed.</p>
-    <nav class="footer-links" aria-label="Footer">
-      <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes <span aria-hidden="true">↗</span></a>
-      <a href="https://github.com/JTKC00" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
-    </nav>
-  </footer>
+  ${renderFooter()}
 `
+
+const renderNotFound = (): string => `
+  ${renderHeader('not-found')}
+
+  <main id="main-content">
+    <section class="not-found section-shell" aria-labelledby="not-found-title">
+      <p class="section-index">404</p>
+      <h1 id="not-found-title">This page is not here.</h1>
+      <p>The link may be out of date. You can return to the Snugzap homepage.</p>
+      <div class="not-found-links">
+        <a class="text-link" href="/">Back to Snugzap</a>
+        <a class="text-link" href="/#projects">Browse projects</a>
+      </div>
+    </section>
+  </main>
+
+  ${renderFooter()}
+`
+
+const renderSocialMeta = (): string => {
+  const title = escapeHtml(site.title)
+  const description = escapeHtml(site.description)
+  const image = escapeHtml(socialImageUrl)
+  const alt = escapeHtml(site.socialImage.alt)
+  const url = escapeHtml(canonicalUrl('/'))
+
+  return `
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="${escapeHtml(site.name)}" />
+    <meta property="og:title" content="${title}" />
+    <meta property="og:description" content="${description}" />
+    <meta property="og:url" content="${url}" />
+    <meta property="og:image" content="${image}" />
+    <meta property="og:image:type" content="${escapeHtml(site.socialImage.mimeType)}" />
+    <meta property="og:image:width" content="${site.socialImage.width}" />
+    <meta property="og:image:height" content="${site.socialImage.height}" />
+    <meta property="og:image:alt" content="${alt}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${title}" />
+    <meta name="twitter:description" content="${description}" />
+    <meta name="twitter:image" content="${image}" />
+    <meta name="twitter:image:alt" content="${alt}" />
+    <script type="application/ld+json">${serializeJsonLd(websiteJsonLd)}</script>`
+}
+
+export const renderDocument = (page: RenderedPage, context: DeployContext): string => {
+  const indexable = page === 'home' && isIndexableContext(context)
+  const title = page === 'home' ? site.title : `Page not found — ${site.name}`
+  const description =
+    page === 'home' ? site.description : 'This page is not part of the Snugzap homepage.'
+  const body = page === 'home' ? renderHome() : renderNotFound()
+
+  return `<!doctype html>
+<html lang="${site.lang}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+    ${indexable ? '' : '<meta name="robots" content="noindex" />'}
+    ${page === 'home' ? `<link rel="canonical" href="${escapeHtml(canonicalUrl('/'))}" />` : ''}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/src/styles.css" />
+    <meta name="theme-color" content="${escapeHtml(site.themeColor)}" />
+    ${page === 'home' ? renderSocialMeta() : ''}
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <div id="app">
+      ${body}
+    </div>
+  </body>
+</html>
+`
+}
+
+export const renderSitemap = (): string => {
+  const urls = indexablePages
+    .map((page) => `  <url>\n    <loc>${escapeHtml(canonicalUrl(page.path))}</loc>\n  </url>`)
+    .join('\n')
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls}
+</urlset>
+`
+}
+
+export const renderRobots = (context: DeployContext): string => {
+  const lines = ['User-agent: *', 'Allow: /', '']
+
+  if (isIndexableContext(context)) {
+    lines.push(`Sitemap: ${canonicalUrl('/sitemap.xml')}`, '')
+  }
+
+  return `${lines.join('\n')}`
+}
+
+export const renderRobotsHeader = (context: DeployContext): string | null => {
+  if (isIndexableContext(context)) return null
+
+  return ['/*', '  X-Robots-Tag: noindex', ''].join('\n')
+}
