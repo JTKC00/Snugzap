@@ -70,15 +70,20 @@ try {
     assert.ok(!result.exceptionDetails, JSON.stringify(result.exceptionDetails))
     return result.result.value
   }
+  const waitFor = async (expression, label) => {
+    for (let i = 0; i < 30; i++) {
+      if (await evaluate(expression)) return
+      await new Promise((done) => setTimeout(done, 50))
+    }
+    throw new Error(`Browser condition did not settle: ${label}`)
+  }
   await send('Page.enable')
+  await send('Page.bringToFront')
+  await send('Emulation.setFocusEmulationEnabled', { enabled: true })
   const navigate = async (path) => {
     const result = await send('Page.navigate', { url: origin + path })
     assert.ok(!result.errorText, result.errorText)
-    for (let i = 0; i < 50; i++) {
-      if (await evaluate('document.readyState === "complete" && !!document.querySelector("main")')) return
-      await new Promise((done) => setTimeout(done, 100))
-    }
-    throw new Error('Page did not finish loading')
+    await waitFor('document.readyState === "complete" && !!document.querySelector("main")', 'page load')
   }
   const results = []
   for (const disabled of [true, false]) {
@@ -125,13 +130,14 @@ try {
   writeFileSync(join(output, 'viewport-results.json'), JSON.stringify({ context, viewports: results }, null, 2))
   await send('Emulation.setScriptExecutionDisabled', { value: false })
   await navigate('/')
+  await send('Page.bringToFront')
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
   await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
   assert.equal(await evaluate('document.activeElement.className'), 'skip-link')
-  assert.ok(await evaluate('document.activeElement.getBoundingClientRect().top >= 0'))
+  await waitFor('document.hasFocus() && document.activeElement.matches(":focus") && document.activeElement.getBoundingClientRect().top >= 0', 'visible keyboard skip link')
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 })
   await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 })
-  assert.equal(await evaluate('location.hash'), '#main-content')
+  await waitFor('location.hash === "#main-content"', 'skip navigation')
   const notFound = await fetch(origin + '/this-page-does-not-exist')
   assert.equal(notFound.status, 404)
   assert.ok((await notFound.text()).includes('Page not found.'))
