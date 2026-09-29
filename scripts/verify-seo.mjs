@@ -11,7 +11,7 @@ const jpeg = require('jpeg-js')
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const dist = path.join(root, 'dist')
 const viteBin = path.join(root, 'node_modules', '.bin', 'vite')
-const forbidden = ['localhost', '.run.app', 'netlify.app', 'kcalcue.snugzap.com', 'github.com/JTKC00/ECHOES', 'jtkc00.github.io/ECHOES']
+const forbidden = ['localhost', '.run.app', 'netlify.app', 'github.com/JTKC00/ECHOES', 'jtkc00.github.io/ECHOES']
 
 const fail = (message) => {
   throw new Error(message)
@@ -97,6 +97,7 @@ const assertPreviewFiles = () => {
   assert(html.includes('rel="canonical" href="https://www.snugzap.com/"'), 'preview canonical is not production')
   assert(!html.includes('netlify.app'), 'preview HTML promotes a preview host')
   assert(html.includes('https://echoes.snugzap.com/'), 'preview HTML lost the ECHOES production URL')
+  assert(html.includes('https://kcalcue.snugzap.com/'), 'preview HTML lost the KcalCue production URL')
   assert(missing.includes('name="robots" content="noindex"'), 'preview 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'preview 404 has a canonical')
   assert(!robots.includes('Disallow'), 'preview robots.txt blocks fetching')
@@ -118,6 +119,7 @@ const assertProductionFiles = () => {
   assert(html.includes('href="/assets/'), 'production CSS is not linked as a built asset')
   assert(!html.includes('/src/main.ts'), 'production HTML still depends on the old client renderer')
   assert(html.includes('https://echoes.snugzap.com/'), 'production HTML lost the ECHOES production URL')
+  assert(html.includes('https://kcalcue.snugzap.com/'), 'production HTML lost the KcalCue production URL')
   for (const name of ['ECHOES', 'SwiftLocal', 'KcalCue', 'MatterDock', 'Personal Finance Manager', 'Bookstore']) {
     assert(html.includes(name), `production HTML is missing ${name}`)
   }
@@ -147,6 +149,7 @@ const assertHttp = async (expectNoindex) => {
   const homeHtml = await homeResponse.text()
   assert(homeResponse.status === 200, `homepage status ${homeResponse.status}`)
   assert(homeHtml.includes('https://echoes.snugzap.com/'), 'served homepage lost the ECHOES URL')
+  assert(homeHtml.includes('https://kcalcue.snugzap.com/'), 'served homepage lost the KcalCue URL')
   const robots = homeResponse.headers.get('x-robots-tag')
   if (expectNoindex) {
     assert(homeHtml.includes('noindex'), 'served preview homepage is missing noindex')
