@@ -62,7 +62,6 @@ describe('project catalogue', () => {
       expect(href.toLowerCase()).not.toContain('.run.app')
       expect(href.toLowerCase()).not.toMatch(/netlify\.app|vercel\.app|pages\.dev|deploy-preview|amplifyapp\.com/)
       expect(url.hostname).not.toMatch(/console\.(cloud\.google|firebase\.google|aws\.amazon)\.com|portal\.azure\.com/)
-      expect(href.toLowerCase()).not.toContain('kcalcue.snugzap.com')
     }
   })
 
@@ -79,7 +78,20 @@ describe('project catalogue', () => {
       'https://github.com/JTKC00/SwiftLocal/releases/latest',
       'https://github.com/JTKC00/SwiftLocal',
     ])
-    expect(linksOf(kcalCue)).toEqual(['https://github.com/JTKC00/KcalCue'])
+    expect(linksOf(kcalCue)).toEqual([
+      'https://kcalcue.snugzap.com/',
+      'https://github.com/JTKC00/KcalCue',
+    ])
+    expect(kcalCue?.links?.[0]).toMatchObject({
+      label: 'Open KcalCue',
+      href: 'https://kcalcue.snugzap.com/',
+      primary: true,
+    })
+    expect(kcalCue?.links?.[1]).toMatchObject({
+      label: 'View repository',
+      href: 'https://github.com/JTKC00/KcalCue',
+    })
+    expect(kcalCue?.links?.[1]?.primary).not.toBe(true)
     expect(linksOf(matterDock)).toEqual(['https://github.com/JTKC00/MatterDock'])
     expect(linksOf(finance)).toEqual(['https://github.com/JTKC00/Personal-Finance-Manager'])
     expect(linksOf(bookstore)).toEqual(['https://github.com/JTKC00/bookstore_2.0'])
