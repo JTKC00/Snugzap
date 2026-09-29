@@ -88,7 +88,8 @@ try {
       await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] })
       await navigate('/')
       const state = await evaluate(`(() => ({
-        width: innerWidth, scrollWidth: document.documentElement.scrollWidth,
+        width: innerWidth, clientWidth: document.documentElement.clientWidth,
+        scrollWidth: document.documentElement.scrollWidth,
         h1: document.querySelectorAll('h1').length,
         cards: document.querySelectorAll('article').length,
         canonical: document.querySelector('link[rel=canonical]').href,
@@ -99,10 +100,15 @@ try {
         invalidFragments: [...document.querySelectorAll('a[href^="#"]')].filter(a => !document.getElementById(a.hash.slice(1))).length,
         overflow: [...document.querySelectorAll('main *, .site-header *, .site-footer *')].filter(e => {
           if (e.classList.contains('sr-only')) return false;
-          const r = e.getBoundingClientRect(); return r.width > 0 && (r.right > innerWidth + 1 || r.left < -1);
+          const r = e.getBoundingClientRect();
+          return r.width > 0 && (r.right > document.documentElement.clientWidth + 1 || r.left < -1);
         }).map(e => e.tagName + '.' + e.className)
       }))()`)
-      assert.equal(state.scrollWidth, width)
+      // Classic scrollbars consume content width. Compare scrollWidth to clientWidth,
+      // not to the emulated outer viewport, while still inspecting element bounds.
+      assert.equal(state.width, width)
+      assert.ok(state.clientWidth > 0 && state.clientWidth <= width)
+      assert.ok(state.scrollWidth <= state.clientWidth, `Horizontal overflow at ${width}`)
       assert.deepEqual(state.overflow, [], `Overflow at ${width}`)
       assert.equal(state.h1, 1); assert.equal(state.cards, 6)
       assert.equal(state.canonical, 'https://www.snugzap.com/')
@@ -117,10 +123,7 @@ try {
     }
   }
   writeFileSync(join(output, 'viewport-results.json'), JSON.stringify({ context, viewports: results }, null, 2))
-  // DevTools evaluation is distinct from site scripts; turn scripts on explicitly for the decoder probe.
   await send('Emulation.setScriptExecutionDisabled', { value: false })
-  const image = await evaluate(`(async () => { const image = new Image(); image.src='/snugzap-og.jpg'; await image.decode(); return { width:image.naturalWidth, height:image.naturalHeight }; })()`)
-  assert.deepEqual(image, { width: 1200, height: 630 })
   await navigate('/')
   await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
   await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 })
@@ -134,9 +137,22 @@ try {
   assert.ok((await notFound.text()).includes('Page not found.'))
   const picture = await fetch(origin + '/snugzap-og.jpg')
   assert.equal(picture.headers.get('content-type'), 'image/jpeg')
-  const report = { result: 'PASS', context, note: 'Local built output, not Netlify runtime or field Core Web Vitals', image, notFoundStatus: notFound.status, viewports: results }
+  // Run the real image decoder last so an asset failure does not hide the other results.
+  let image
+  try {
+    const dimensions = await evaluate(`(async () => { const image = new Image(); image.src='/snugzap-og.jpg'; await image.decode(); return { width:image.naturalWidth, height:image.naturalHeight }; })()`)
+    assert.deepEqual(dimensions, { width: 1200, height: 630 })
+    image = { result: 'PASS', ...dimensions }
+  } catch (error) { image = { result: 'FAIL', error: String(error) } }
+  const report = {
+    result: image.result, context,
+    note: 'Local built output, not Netlify runtime or field Core Web Vitals',
+    layout: 'PASS', keyboard: 'PASS', reducedMotion: 'PASS',
+    image, notFoundStatus: notFound.status, viewports: results,
+  }
   writeFileSync(join(output, 'browser-results.json'), JSON.stringify(report, null, 2))
-  console.log(`Browser PASS: ${context}, 5 widths with JS disabled/enabled, skip link, reduced motion, image decode and local 404.`)
+  console.log(`Browser ${image.result}: ${context}; layout, keyboard, reduced motion and local 404 PASS; image=${image.result}.`)
+  assert.equal(image.result, 'PASS', 'Actual social image must decode at 1200x630; see browser-results.json')
 } finally {
   for (const entry of pending.values()) clearTimeout(entry.timer)
   socket?.close()
