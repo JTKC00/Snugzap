@@ -1,46 +1,54 @@
 # Snugzap
 
-Snugzap is the public home for James' independent software, games and experiments: [snugzap.com](https://snugzap.com/).
+The public home for James' independent software, games and experiments: https://www.snugzap.com/.
 
-It gathers practical software, thoughtful tools, playable worlds and preserved experiments in one calm place. The homepage is a focused studio page, not a generic developer portfolio or a product-marketing site.
+## Architecture
 
-## Stack
+Vite + TypeScript, semantic HTML, plain CSS, Vitest and Netlify static hosting.
+There is no application server, client-side router, framework migration, analytics, or runtime content API.
 
-- Vite and TypeScript
-- Plain semantic HTML and CSS
-- Vitest for project-data checks
-- Netlify static deployment
+Phase 2.2 renders the complete homepage at build time. `index.html` and `404.html` are templates; `vite.config.ts` fills their head/body slots. `src/render.ts` renders the same content for visitors and crawlers. Production HTML includes all six project cards, links and navigation without JavaScript. CSS loads through a regular stylesheet link. `src/main.ts`'s browser `innerHTML` renderer is removed.
 
-The site stays a lightweight static build. There is no client-side router, CMS or UI framework. Project detail pages are not part of this homepage.
+## Sources of truth
 
-## Local development
+- `src/projects.ts`: curated catalogue, featured / active / archived grouping, verified public project destinations. Preserve ECHOES' `https://echoes.snugzap.com/` URL from PR #4.
+- `src/site.ts`: canonical origin, title, description, site/creator identity, social-image metadata and published page paths.
+- `src/seo.ts`: metadata, truthful JSON-LD, context-aware indexing policy, robots, sitemap and headers.
+- `src/render.ts`: homepage / not-found markup. Existing design and product copy are retained.
 
-```bash
-npm install
+Patch versions remain on the relevant product/release destination, not on this homepage. Product detail pages will be added only when substantive public content exists.
+
+## Development and checks
+
+```sh
+npm ci
 npm run dev
-```
-
-## Quality checks
-
-```bash
 npm run lint
 npm run typecheck
 npm test
 npm run build
+npm run check:seo
 ```
 
-## Project catalogue
+`npm run build` includes built-output SEO checks. A local build without `CONTEXT` is deliberately **noindex**. Simulate production on macOS/Linux with `CONTEXT=production npm run build`; in PowerShell use `$env:CONTEXT='production'; npm run build`. Reset the variable afterward.
 
-Curated project data lives in `src/projects.ts`. The homepage groups that catalogue by meaning, not by list position:
+`npm run test:browser` requires Node 22+ and Chrome/Chromium (set `CHROME_PATH` when needed). It checks five widths with site JavaScript off/on, keyboard skip navigation, reduced motion, image decoding and local static 404 behavior. Screenshots and a JSON report go to `artifacts/`.
 
-- **Featured work** — projects marked `featured`
-- **More projects** — active work that is neither featured nor archived
-- **Archive & future** — projects marked `archived`
+The read-only GitHub Actions workflow tests production, deploy-preview and branch-deploy builds, including consecutive builds that must not leak a stale sitemap or noindex header. It publishes evidence artifacts, never the website.
 
-Lifecycle labels describe where a project is, such as `Windows release · Active development` or `Dormant · Future revival`. They intentionally avoid fast-changing patch versions. Exact releases belong on the project or release destination.
+## Deployment and indexing
 
-Only approved public project destinations should be linked. Do not add localhost addresses, QA revisions, deploy previews, admin consoles, private service URLs or other temporary environments.
+Netlify still runs `npm run build` and publishes `dist`. Existing `netlify.toml` security/cache headers, primary domain, DNS and redirects are unchanged.
 
-## Deployment
+| Build | HTML robots | Generated `_headers` | Sitemap |
+| --- | --- | --- | --- |
+| `CONTEXT=production` | Homepage index/follow | Only `/404.html` noindex | Existing canonical pages only |
+| `deploy-preview`, `branch-deploy`, local or unknown | noindex/nofollow | Site-wide noindex/nofollow | Not emitted |
 
-Netlify runs `npm run build` and publishes `dist`. The configuration does not contain redirects, custom-domain changes or subdomain rules, so it remains isolated from `james.sharing.snugzap.com` and other DNS routing.
+Robots allows crawling in both cases so crawlers can see noindex. Robots/noindex is not access control. Private environments need authentication. Existing Notes, product and QA subdomains are not modified by these rules.
+
+`dist/404.html` provides Netlify's native not-found page; no SPA catch-all rewrite is added. Local tests do not substitute for the actual Netlify 404/header checks after publishing a preview/production build.
+
+The existing social image remains unchanged in this PR. Byte signatures and declared dimensions are not accepted as full validation: the browser must decode the actual built image. An image-decoding failure remains a merge blocker; see the acceptance record for the retained original source fingerprint.
+
+See [SEO policy](docs/SEO_POLICY.md) and [acceptance record](docs/SEO_ACCEPTANCE.md). Search Console, Bing, field Core Web Vitals and real crawler indexing are separate verification layers and must not be inferred from a passing build.

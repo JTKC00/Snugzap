@@ -2,7 +2,7 @@ import eslint from '@eslint/js'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['dist', 'coverage'] },
+  { ignores: ['dist', 'coverage', 'artifacts'] },
   eslint.configs.recommended,
   ...tseslint.configs.strict,
   {
@@ -13,5 +13,12 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+  },
+  {
+    files: ['scripts/*.mjs', 'vite.config.ts'],
+    languageOptions: { globals: {
+      process: 'readonly', console: 'readonly', Buffer: 'readonly', URL: 'readonly',
+      WebSocket: 'readonly', fetch: 'readonly', setTimeout: 'readonly', clearTimeout: 'readonly',
+    } },
   },
 )

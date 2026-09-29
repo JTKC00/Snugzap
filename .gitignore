@@ -7,3 +7,6 @@ output/
 
 # Local Netlify folder
 .netlify
+
+# SEO browser evidence is uploaded by CI, not committed
+artifacts/
