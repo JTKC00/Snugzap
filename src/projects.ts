@@ -82,10 +82,15 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
+        label: 'Open KcalCue',
+        href: 'https://kcalcue.snugzap.com/',
+        external: true,
+        primary: true,
+      },
+      {
         label: 'View repository',
         href: 'https://github.com/JTKC00/KcalCue',
         external: true,
-        primary: true,
       },
     ],
   },
