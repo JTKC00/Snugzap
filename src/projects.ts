@@ -40,7 +40,7 @@ export const projects: readonly Project[] = [
     links: [
       {
         label: 'Play web demo',
-        href: 'https://jtkc00.github.io/ECHOES/',
+        href: 'https://echoes.snugzap.com/',
         external: true,
         primary: true,
       },
