@@ -74,7 +74,7 @@ describe('project catalogue', () => {
     const finance = projects.find((project) => project.slug === 'personal-finance-manager')
     const bookstore = projects.find((project) => project.slug === 'bookstore')
 
-    expect(linksOf(echoes)).toEqual(['https://jtkc00.github.io/ECHOES/'])
+    expect(linksOf(echoes)).toEqual(['https://echoes.snugzap.com/'])
     expect(linksOf(swiftLocal)).toEqual([
       'https://github.com/JTKC00/SwiftLocal/releases/latest',
       'https://github.com/JTKC00/SwiftLocal',
