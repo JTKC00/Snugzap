@@ -69,11 +69,24 @@ Keyboard check at 1440: Tab focused “Skip to content” (`top: 12`). Enter mov
 
 While the skip link is focused it sits over the left side of the wordmark. That is the existing fixed skip-link placement.
 
+## Hosted Deploy Preview
+
+Evidence level: live HTTP against the automatic Netlify preview for Draft PR #7, `https://deploy-preview-7--snugzap.netlify.app`, on 2026-09-29. This is not production and not `https://www.snugzap.com/`.
+
+| Request | Status | Observed |
+| --- | --- | --- |
+| `GET /` | 200 | `text/html`; `X-Robots-Tag: noindex`; HTML `noindex`; canonical `https://www.snugzap.com/`; one H1; six project cards; ECHOES `https://echoes.snugzap.com/`; CSS `/assets/styles-1L6VvZ4z.css` |
+| `GET /this-page-does-not-exist` | 404 | Branded “This page is not here.”; `noindex`; no canonical; no JSON-LD; `X-Robots-Tag: noindex` |
+| `GET /snugzap-og.jpg` | 200 | `image/jpeg`, 44544 bytes; `jpeg-js` decoded 1200×630 |
+| `GET /robots.txt` | 200 | `Allow: /`; no `Disallow`; no `Sitemap:` line |
+| `GET /sitemap.xml` | 200 | One loc, `https://www.snugzap.com/`; no preview host and no `lastmod` |
+
+GitHub Actions `Check / verify` on that PR also succeeded (Node 20: `npm ci`, lint, typecheck, test, `verify:seo`). Netlify’s deploy-preview check succeeded. No production deploy was requested.
+
 ## Not performed
 
 - Search Console and Bing Webmaster Tools were not opened, and no sitemap was submitted.
 - Field Core Web Vitals were not measured.
 - Google’s rich-result / site-name tester was not run. Local JSON parsing is not a rich-result claim.
 - The earlier observation that the apex returns 301 to `https://www.snugzap.com/` and that `www` returns 200 is historical. This run did not send a new request to the public host.
-- Hosted Netlify Deploy Preview HTTP, including a hosted 404, is recorded separately when that preview exists. This document’s 404 status is from the local preview and dev servers.
-- DNS, Cloudflare, and Netlify project settings were not changed. `netlify.toml` security headers were not edited. Nothing was merged and no production deploy was requested.
+- DNS, Cloudflare, and Netlify project settings were not changed. `netlify.toml` security headers were not edited. Nothing was merged.
