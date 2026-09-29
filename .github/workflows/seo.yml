@@ -21,22 +21,36 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run typecheck
-      - run: npm test
+      - id: unit
+        run: npm test
       - name: Production to preview to branch to production output isolation
         run: |
-          CONTEXT=production npm run build
-          CONTEXT=deploy-preview npm run build
-          CONTEXT=branch-deploy npm run build
-          CONTEXT=production npm run build
+          status=0
+          for context in production deploy-preview branch-deploy production; do
+            CONTEXT="$context" npm run build || status=1
+          done
+          exit "$status"
       - name: Production and preview browser acceptance
+        if: ${{ !cancelled() && steps.unit.outcome == 'success' }}
         run: |
           status=0
-          CONTEXT=production npm run build && CONTEXT=production npm run test:browser || status=1
-          CONTEXT=deploy-preview npm run build && CONTEXT=deploy-preview npm run test:browser || status=1
+          for context in production deploy-preview; do
+            rm -rf dist
+            CONTEXT="$context" npm run build || status=1
+            # A post-build asset failure must not suppress independent browser evidence.
+            # The failure is retained above; there is no continue-on-error or green bypass.
+            if test -f dist/index.html; then
+              CONTEXT="$context" npm run test:browser || status=1
+            else
+              status=1
+            fi
+          done
           exit "$status"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: seo-evidence
-          path: artifacts/
+          path: |
+            artifacts/
+            dist/snugzap-og.jpg
           if-no-files-found: ignore
