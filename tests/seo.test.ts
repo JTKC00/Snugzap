@@ -45,7 +45,7 @@ describe('static homepage', () => {
     expect(home).not.toContain('github.com/JTKC00/ECHOES')
     expect(home.toLowerCase()).not.toContain('localhost')
     expect(home).not.toContain('.run.app')
-    expect(home).not.toContain('kcalcue.snugzap.com')
+    expect(home).toContain('https://kcalcue.snugzap.com/')
   })
 
   it('keeps one production metadata source for canonical, social and structured data', () => {
