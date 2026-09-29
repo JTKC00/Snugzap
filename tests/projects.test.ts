@@ -90,8 +90,8 @@ describe('project catalogue', () => {
     expect(kcalCue?.links?.[1]).toMatchObject({
       label: 'View repository',
       href: 'https://github.com/JTKC00/KcalCue',
-      primary: undefined,
     })
+    expect(kcalCue?.links?.[1]?.primary).not.toBe(true)
     expect(linksOf(matterDock)).toEqual(['https://github.com/JTKC00/MatterDock'])
     expect(linksOf(finance)).toEqual(['https://github.com/JTKC00/Personal-Finance-Manager'])
     expect(linksOf(bookstore)).toEqual(['https://github.com/JTKC00/bookstore_2.0'])
