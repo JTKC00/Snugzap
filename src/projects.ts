@@ -75,10 +75,10 @@ export const projects: readonly Project[] = [
     name: 'KcalCue',
     type: 'Web app / PWA',
     status: 'PWA · Active validation',
-    summary: 'Photo-based calorie and macro estimation that makes uncertainty visible.',
+    summary: 'AI-assisted meal and calorie tracking with reviewable suggestions and user-confirmed nutrition.',
     detail:
-      'KcalCue identifies visible food, estimates reasonable portion ranges and presents nutrition as ranges instead of pretending to know an exact number.',
-    tags: ['PWA', 'AI-assisted', 'Nutrition ranges'],
+      'Take a meal photo, review the AI suggestions, adjust food items or portions, then save the confirmed nutrition to the cloud with Today and History across devices.',
+    tags: ['PWA', 'AI-assisted', 'Cloud Save'],
     featured: true,
     links: [
       {
