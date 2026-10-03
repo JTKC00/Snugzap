@@ -125,10 +125,14 @@ export const projects: readonly Project[] = [
     tags: ['Personal finance', 'Firebase', 'Receipt OCR'],
     links: [
       {
+        label: 'Explore Personal Finance Manager',
+        href: '/personal-finance-manager/',
+        primary: true,
+      },
+      {
         label: 'View repository',
         href: 'https://github.com/JTKC00/Personal-Finance-Manager',
         external: true,
-        primary: true,
       },
     ],
   },

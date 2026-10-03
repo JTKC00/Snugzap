@@ -19,7 +19,7 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue'
+export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue' | 'personal-finance-manager'
 
 export type SocialImage = {
   path: string
@@ -95,6 +95,22 @@ export const pages = [
       width: 1200,
       height: 630,
       alt: 'KcalCue — A little clarity, one meal at a time. Meal photos, reviewable nutrition ranges and daily records.',
+    },
+  },
+  {
+    id: 'personal-finance-manager',
+    path: '/personal-finance-manager/',
+    indexable: true,
+    title: 'Personal Finance Manager — Transactions, Budgets & Savings | Snugzap',
+    description:
+      'Explore Personal Finance Manager, a web app for income and expenses, HKD category budgets, spending analysis, savings goals, subscriptions and receipt OCR.',
+    themeColor: '#f5f5f7',
+    socialImage: {
+      path: '/personal-finance-manager/finance-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'Personal Finance Manager — A clear place for everyday money. Transactions, budgets, savings and recurring costs.',
     },
   },
 ] as const satisfies readonly SitePage[]

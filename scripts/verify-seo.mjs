@@ -162,6 +162,26 @@ const assertKcalCueFiles = (expectNoindex) => {
   }
 }
 
+const assertFinanceHtml = (html, expectNoindex) => {
+  assert((html.match(/<h1\b/g) ?? []).length === 1 && html.includes('<h1 id="finance-title">Personal Finance<br>Manager</h1>'), 'Finance product H1 is incorrect')
+  assert(html.includes('rel="canonical" href="https://www.snugzap.com/personal-finance-manager/"'), 'Finance canonical is incorrect')
+  assert(html.includes('og:url" content="https://www.snugzap.com/personal-finance-manager/"'), 'Finance social URL is incorrect')
+  assert(html.includes('og:image" content="https://www.snugzap.com/personal-finance-manager/finance-og.jpg"'), 'Finance social image is incorrect')
+  assert(html.includes('"@type":"WebPage"'), 'Finance structured data is missing')
+  assert(html.includes('Category budgets use HKD') && html.includes('OCR requires sign-in'), 'Finance usage guidance is missing')
+  assert((html.match(/href="https:\/\/github\.com\/JTKC00\/Personal-Finance-Manager"/g) ?? []).length === 2, 'Finance must have two official repository CTAs')
+  assert(html.includes('name="robots" content="noindex"') === expectNoindex, 'Finance indexability is incorrect')
+}
+
+const assertFinanceFiles = (expectNoindex) => {
+  const html = read('personal-finance-manager/index.html')
+  assertFinanceHtml(html, expectNoindex)
+  assert(html.includes('href="/assets/') && !html.includes('/src/'), 'Finance CSS is not built')
+  for (const name of ['icon.png', 'finance-og.jpg']) {
+    assert(readFileSync(path.join(root, 'public', 'personal-finance-manager', name)).equals(readFileSync(path.join(dist, 'personal-finance-manager', name))), `Finance built ${name} differs from source`)
+  }
+}
+
 const assertPreviewFiles = () => {
   const html = read('index.html')
   const missing = read('404.html')
@@ -174,6 +194,7 @@ const assertPreviewFiles = () => {
   assertProductFiles(true)
   assertSwiftLocalFiles(true)
   assertKcalCueFiles(true)
+  assertFinanceFiles(true)
   assert(html.includes('href="/kcalcue/"'), 'preview HTML lost the KcalCue introduction')
   assert(missing.includes('name="robots" content="noindex"'), 'preview 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'preview 404 has a canonical')
@@ -199,6 +220,7 @@ const assertProductionFiles = () => {
   assertProductFiles(false)
   assertSwiftLocalFiles(false)
   assertKcalCueFiles(false)
+  assertFinanceFiles(false)
   assert(html.includes('href="/kcalcue/"'), 'production HTML lost the KcalCue introduction')
   for (const name of ['ECHOES', 'SwiftLocal', 'KcalCue', 'MatterDock', 'Personal Finance Manager', 'Bookstore']) {
     assert(html.includes(name), `production HTML is missing ${name}`)
@@ -211,9 +233,10 @@ const assertProductionFiles = () => {
   assert(sitemap.includes('<loc>https://www.snugzap.com/</loc>'), 'production sitemap is missing the homepage')
   assert(!sitemap.includes('lastmod'), 'production sitemap fabricates lastmod')
   assert(sitemap.includes('<loc>https://www.snugzap.com/echoes/</loc>'), 'production sitemap is missing ECHOES')
-  assert((sitemap.match(/<loc>/g) ?? []).length === 4, 'production sitemap must contain exactly the four published pages')
+  assert((sitemap.match(/<loc>/g) ?? []).length === 5, 'production sitemap must contain exactly the five published pages')
   assert(sitemap.includes('<loc>https://www.snugzap.com/swiftlocal/</loc>'), 'production sitemap is missing SwiftLocal')
   assert(sitemap.includes('<loc>https://www.snugzap.com/kcalcue/</loc>'), 'production sitemap is missing KcalCue')
+  assert(sitemap.includes('<loc>https://www.snugzap.com/personal-finance-manager/</loc>'), 'production sitemap is missing Finance')
   assert(!sitemap.includes('404'), 'production sitemap includes the 404')
   assert(missing.includes('name="robots" content="noindex"'), 'production 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'production 404 uses a homepage canonical')
@@ -233,6 +256,9 @@ const assertProductionFiles = () => {
   const kcalSource = decodeJpeg(path.join(root, 'public', 'kcalcue', 'kcalcue-og.jpg'), 'KcalCue source social image')
   const kcalBuilt = decodeJpeg(path.join(dist, 'kcalcue', 'kcalcue-og.jpg'), 'KcalCue built social image')
   assert(kcalSource.equals(kcalBuilt), 'KcalCue social image differs from source')
+  const financeSource = decodeJpeg(path.join(root, 'public', 'personal-finance-manager', 'finance-og.jpg'), 'Finance source social image')
+  const financeBuilt = decodeJpeg(path.join(dist, 'personal-finance-manager', 'finance-og.jpg'), 'Finance built social image')
+  assert(financeSource.equals(financeBuilt), 'Finance social image differs from source')
   console.log('PASS production build files')
 }
 
@@ -271,6 +297,14 @@ const assertHttp = async (expectNoindex) => {
     assertKcalCueHtml(await response.text(), expectNoindex)
     assert(response.headers.get('x-robots-tag') === (expectNoindex ? 'noindex' : null), `${url} incorrect robots header`)
   }
+  for (const url of ['/personal-finance-manager/', '/personal-finance-manager/?from=home', '/personal-finance-manager/index.html']) {
+    const response = await fetch(`http://127.0.0.1:4173${url}`)
+    assert(response.status === 200, `${url} status ${response.status}`)
+    assertFinanceHtml(await response.text(), expectNoindex)
+    assert(response.headers.get('x-robots-tag') === (expectNoindex ? 'noindex' : null), `${url} incorrect robots header`)
+  }
+  const financeRedirect = await fetch('http://127.0.0.1:4173/personal-finance-manager?from=home', { redirect: 'manual' })
+  assert(financeRedirect.status === 308 && financeRedirect.headers.get('location') === '/personal-finance-manager/?from=home', 'Finance redirect lost path or query')
   const kcalRedirect = await fetch('http://127.0.0.1:4173/kcalcue?from=home', { redirect: 'manual' })
   assert(kcalRedirect.status === 308 && kcalRedirect.headers.get('location') === '/kcalcue/?from=home', 'KcalCue redirect lost path or query')
   const swiftRedirect = await fetch('http://127.0.0.1:4173/swiftlocal?from=home', { redirect: 'manual' })
@@ -278,7 +312,7 @@ const assertHttp = async (expectNoindex) => {
   const redirect = await fetch('http://127.0.0.1:4173/echoes?from=home', { redirect: 'manual' })
   assert(redirect.status === 308, `/echoes status ${redirect.status}`)
   assert(redirect.headers.get('location') === '/echoes/?from=home', '/echoes redirect lost path or query')
-  for (const url of ['/echoes/characters/', '/echoes/world/', '/echoes/news/', '/echoes/missing', '/swiftlocal/missing/', '/kcalcue/missing/']) {
+  for (const url of ['/echoes/characters/', '/echoes/world/', '/echoes/news/', '/echoes/missing', '/swiftlocal/missing/', '/kcalcue/missing/', '/personal-finance-manager/missing/']) {
     const response = await fetch(`http://127.0.0.1:4173${url}`)
     const html = await response.text()
     assert(response.status === 404, `${url} must remain 404`)
@@ -292,7 +326,7 @@ const assertHttp = async (expectNoindex) => {
   assert(missingHtml.includes('noindex'), '404 response is missing noindex')
   assert(!missingHtml.includes('rel="canonical"'), '404 response has a canonical')
 
-  for (const imagePath of ['/snugzap-og.jpg', '/echoes/echoes-og.jpg', '/swiftlocal/swiftlocal-og.jpg', '/kcalcue/kcalcue-og.jpg']) {
+  for (const imagePath of ['/snugzap-og.jpg', '/echoes/echoes-og.jpg', '/swiftlocal/swiftlocal-og.jpg', '/kcalcue/kcalcue-og.jpg', '/personal-finance-manager/finance-og.jpg']) {
     const imageResponse = await fetch(`http://127.0.0.1:4173${imagePath}`)
     const imageType = imageResponse.headers.get('content-type') ?? ''
     assert(imageResponse.status === 200, `social image status ${imageResponse.status}`)
@@ -331,6 +365,7 @@ const main = async () => {
   assertProductFiles(true)
   assertSwiftLocalFiles(true)
   assertKcalCueFiles(true)
+  assertFinanceFiles(true)
   assert(read('_headers').includes('X-Robots-Tag: noindex'), 'unknown context did not emit noindex headers')
   console.log('PASS unknown context defaults to noindex')
 

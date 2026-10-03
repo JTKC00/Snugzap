@@ -24,6 +24,7 @@ describe('static homepage', () => {
     expect(home).not.toContain('href="/src/echoes.css"')
     expect(home).not.toContain('href="/src/swiftlocal.css"')
     expect(home).not.toContain('href="/src/kcalcue.css"')
+    expect(home).not.toContain('href="/src/personal-finance-manager.css"')
     expect(home).not.toContain('class="theme-echoes"')
     expect(home).toContain('<h1 id="hero-title">')
     expect(home.match(/<h1\b/g)).toHaveLength(1)
@@ -138,16 +139,17 @@ describe('indexability contexts', () => {
     expect(renderRobotsHeader('production')).toBeNull()
   })
 
-  it('publishes the homepage and three product pages in the sitemap and keeps the 404 out', () => {
-    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/', 'https://www.snugzap.com/swiftlocal/', 'https://www.snugzap.com/kcalcue/'])
+  it('publishes the homepage and four product pages in the sitemap and keeps the 404 out', () => {
+    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/', 'https://www.snugzap.com/swiftlocal/', 'https://www.snugzap.com/kcalcue/', 'https://www.snugzap.com/personal-finance-manager/'])
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/</loc>')
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/echoes/</loc>')
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/swiftlocal/</loc>')
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/kcalcue/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/personal-finance-manager/</loc>')
     expect(renderSitemap()).not.toContain('lastmod')
     expect(renderSitemap()).not.toContain('echoes.snugzap.com')
     expect(renderSitemap()).not.toContain('404')
-    expect(renderSitemap().match(/<loc>/g)).toHaveLength(4)
+    expect(renderSitemap().match(/<loc>/g)).toHaveLength(5)
 
     expect(missing).toContain('<meta name="robots" content="noindex" />')
     expect(missing).toContain('This page is not here.')

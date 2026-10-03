@@ -1,6 +1,7 @@
 import { echoes } from './echoes.ts'
 import { swiftlocal } from './swiftlocal.ts'
 import { kcalcue } from './kcalcue.ts'
+import { finance } from './personal-finance-manager.ts'
 import {
   activeProjects,
   archivedProjects,
@@ -510,13 +511,83 @@ const renderKcalCue = (): string => `
   ${renderFooter()}
 `
 
+const renderFinance = (): string => `
+  ${renderHeader('personal-finance-manager')}
+  <main id="main-content">
+    <section class="pf-hero pf-shell" aria-labelledby="finance-title">
+      <div class="pf-hero-copy">
+        <p class="pf-eyebrow">A personal finance workspace</p>
+        <h1 id="finance-title">Personal Finance<br>Manager</h1>
+        <p class="pf-tagline">A clear place for everyday money.</p>
+        <p class="pf-description">Bring income, expenses, budgets, savings goals and recurring costs into one web app. Keep the details close and make sense of the bigger picture.</p>
+        <div class="pf-actions">
+          <a class="pf-button" href="${finance.repositoryUrl}" target="_blank" rel="noreferrer">View project on GitHub ${externalArrow}</a>
+          <a class="pf-link" href="#features">Explore the features ↓</a>
+        </div>
+        <p class="pf-status">Web app · Active development</p>
+      </div>
+      <figure class="pf-brand-panel">
+        <img src="/personal-finance-manager/icon.png" alt="Personal Finance Manager’s white P-shaped wallet mark on blue." width="512" height="512" fetchpriority="high" />
+        <figcaption><strong>Personal Finance Manager</strong><span>Record · Plan · Review</span></figcaption>
+      </figure>
+    </section>
+    <section class="pf-section pf-shell" id="features" aria-labelledby="features-title">
+      <div class="pf-section-heading">
+        <div><p class="pf-eyebrow">One workspace, connected details</p><h2 id="features-title">From a transaction<br>to the bigger picture.</h2></div>
+        <p>Organise day-to-day records, see recurring commitments and follow the plans you have made for your money.</p>
+      </div>
+      <div class="pf-features">
+        ${finance.features.map((feature) => `<article class="pf-feature"><p class="pf-feature-label">${escapeHtml(feature.name)}</p><h3>${escapeHtml(feature.title)}</h3><p>${escapeHtml(feature.description)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="pf-ocr pf-shell" id="receipt-ocr" aria-labelledby="ocr-title">
+      <div class="pf-ocr-copy">
+        <p class="pf-eyebrow">Less retyping, more checking</p>
+        <h2 id="ocr-title">A receipt is<br>a starting point.</h2>
+        <p>Receipt OCR suggests transaction details from a photo. Review the field confidence, check anything unclear and make corrections before saving.</p>
+        <p>OCR requires sign-in and sends the receipt image to an AI service for processing. You can also enter transactions manually.</p>
+      </div>
+      <ol class="pf-steps" aria-label="Receipt workflow">
+        ${finance.receiptSteps.map((step) => `<li><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.description)}</p></li>`).join('')}
+      </ol>
+    </section>
+    <section class="pf-section pf-shell" id="working-with-your-data" aria-labelledby="data-title">
+      <div class="pf-section-heading">
+        <div><p class="pf-eyebrow">Details that make a difference</p><h2 id="data-title">Keep the numbers<br>in context.</h2></div>
+        <p>Understand what has already happened, what is coming up and which currency each record belongs to.</p>
+      </div>
+      <div class="pf-details">
+        <article class="pf-detail"><h3>Actual &amp; upcoming</h3><p>Monthly views distinguish spending already incurred, future-dated transactions and upcoming subscriptions.</p></article>
+        <article class="pf-detail"><h3>Currencies kept separate</h3><p>Category budgets use HKD. Other currencies are shown separately without exchange-rate conversion, and transactions must match their account’s base currency.</p></article>
+        <article class="pf-detail"><h3>Your signed-in workspace</h3><p>Account-based records use cloud storage. The web app includes PWA support and offline caching; OCR needs a connection to its service.</p></article>
+      </div>
+    </section>
+    <section class="pf-start pf-shell" id="project" aria-labelledby="project-title">
+      <p class="pf-eyebrow">Follow the project</p>
+      <h2 id="project-title">Explore what is being built.</h2>
+      <p>Personal Finance Manager is in active development. Find the source, feature documentation and setup instructions in the public GitHub repository.</p>
+      <div class="pf-actions"><a class="pf-button" href="${finance.repositoryUrl}" target="_blank" rel="noreferrer">View project on GitHub ${externalArrow}</a></div>
+    </section>
+  </main>
+  ${renderFooter()}
+`
+
+const pageRenderers: Record<RenderedPage, () => string> = {
+  home: renderHome,
+  echoes: renderEchoes,
+  swiftlocal: renderSwiftLocal,
+  kcalcue: renderKcalCue,
+  'personal-finance-manager': renderFinance,
+  'not-found': renderNotFound,
+}
+
 export const renderDocument = (page: RenderedPage, context: DeployContext): string => {
   const metadata = pages.find((entry) => entry.id === page)
   const indexable = metadata?.indexable === true && isIndexableContext(context)
   const title = metadata?.title ?? `Page not found — ${site.name}`
   const description = metadata?.description ?? 'This page is not part of the Snugzap website.'
-  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : page === 'swiftlocal' ? renderSwiftLocal() : page === 'kcalcue' ? renderKcalCue() : renderNotFound()
-  const productPage = page === 'echoes' || page === 'swiftlocal' || page === 'kcalcue'
+  const body = pageRenderers[page]()
+  const productPage = metadata !== undefined && page !== 'home'
 
   return `<!doctype html>
 <html lang="${site.lang}"${productPage ? ` class="${page}-document"` : ''}>
