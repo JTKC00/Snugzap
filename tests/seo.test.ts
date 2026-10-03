@@ -21,6 +21,8 @@ describe('static homepage', () => {
   it('contains the full catalogue before any client script runs', () => {
     expect(home).not.toContain('src/main.ts')
     expect(home).toContain('href="/src/styles.css"')
+    expect(home).not.toContain('href="/src/echoes.css"')
+    expect(home).not.toContain('class="theme-echoes"')
     expect(home).toContain('<h1 id="hero-title">')
     expect(home.match(/<h1\b/g)).toHaveLength(1)
     expect(home).toContain('Skip to content')

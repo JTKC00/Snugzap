@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -97,6 +97,8 @@ const assertProductHtml = (html, expectNoindex) => {
   assert(html.includes('<title>ECHOES'), 'ECHOES page uses the homepage title')
   assert(html.includes('og:title" content="ECHOES'), 'ECHOES social title is incorrect')
   assert(html.includes('twitter:title" content="ECHOES'), 'ECHOES Twitter title is incorrect')
+  assert(html.includes('og:image" content="https://www.snugzap.com/echoes/echoes-og.jpg"'), 'ECHOES social image is incorrect')
+  assert(html.includes('theme-color" content="#080e18"'), 'ECHOES browser theme color is incorrect')
   assert(html.includes('"@type":"WebPage"'), 'ECHOES structured data is missing')
   assert((html.match(/href="https:\/\/echoes\.snugzap\.com\/"/g) ?? []).length === 2, 'ECHOES must have two game CTAs')
   assert(html.includes('name="robots" content="noindex"') === expectNoindex, 'ECHOES indexability is incorrect')
@@ -113,9 +115,9 @@ const assertProductFiles = (expectNoindex) => {
   assertProductHtml(html, expectNoindex)
   assert(html.includes('href="/assets/'), 'ECHOES CSS is not a built asset')
   assert(!html.includes('/src/'), 'ECHOES still depends on source files')
-  for (const name of ['arlo_lin', 'luca_medical_apprentice', 'cillian_apprentice_sr']) {
-    const source = readFileSync(path.join(root, 'public', 'echoes', `${name}.webp`))
-    const built = readFileSync(path.join(dist, 'echoes', `${name}.webp`))
+  for (const name of readdirSync(path.join(root, 'public', 'echoes')).filter((name) => name.endsWith('.webp'))) {
+    const source = readFileSync(path.join(root, 'public', 'echoes', name))
+    const built = readFileSync(path.join(dist, 'echoes', name))
     assert(source.equals(built), `${name} built artwork differs from source`)
   }
 }
@@ -176,6 +178,9 @@ const assertProductionFiles = () => {
     createHash('sha256').update(sourceImage).digest('hex') === createHash('sha256').update(builtImage).digest('hex'),
     'built social image bytes differ from the source file',
   )
+  const echoesSource = decodeJpeg(path.join(root, 'public', 'echoes', 'echoes-og.jpg'), 'ECHOES source social image')
+  const echoesBuilt = decodeJpeg(path.join(dist, 'echoes', 'echoes-og.jpg'), 'ECHOES built social image')
+  assert(echoesSource.equals(echoesBuilt), 'ECHOES built social image bytes differ from source')
   console.log('PASS production build files')
 }
 
@@ -218,13 +223,15 @@ const assertHttp = async (expectNoindex) => {
   assert(missingHtml.includes('noindex'), '404 response is missing noindex')
   assert(!missingHtml.includes('rel="canonical"'), '404 response has a canonical')
 
-  const imageResponse = await fetch('http://127.0.0.1:4173/snugzap-og.jpg')
-  const imageType = imageResponse.headers.get('content-type') ?? ''
-  assert(imageResponse.status === 200, `social image status ${imageResponse.status}`)
-  assert(imageType.startsWith('image/jpeg'), `social image content-type ${imageType}`)
-  const imageBytes = Buffer.from(await imageResponse.arrayBuffer())
-  const decoded = jpeg.decode(imageBytes, { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 20 })
-  assert(decoded.width === 1200 && decoded.height === 630, 'served social image did not decode to 1200x630')
+  for (const imagePath of ['/snugzap-og.jpg', '/echoes/echoes-og.jpg']) {
+    const imageResponse = await fetch(`http://127.0.0.1:4173${imagePath}`)
+    const imageType = imageResponse.headers.get('content-type') ?? ''
+    assert(imageResponse.status === 200, `social image status ${imageResponse.status}`)
+    assert(imageType.startsWith('image/jpeg'), `social image content-type ${imageType}`)
+    const imageBytes = Buffer.from(await imageResponse.arrayBuffer())
+    const decoded = jpeg.decode(imageBytes, { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 20 })
+    assert(decoded.width === 1200 && decoded.height === 630, 'served social image did not decode to 1200x630')
+  }
   console.log(`PASS HTTP ${expectNoindex ? 'preview' : 'production'} server`)
 }
 

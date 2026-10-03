@@ -55,3 +55,28 @@ and product page at all six widths with the project menu open: Enter toggled the
 appropriate disclosure, Tab reached its first ECHOES link, all five project
 destinations matched the catalogue and there was no horizontal overflow.
 Lint, typecheck, all 20 tests and the full SEO verification passed again.
+
+## ECHOES visual identity follow-up
+
+The product page now has its own deep-blue visual identity, ice-blue CTAs,
+restrained resonance rings, full-width hero artwork, illustrated story routes
+and larger character presentation. `src/echoes.css` is loaded only by ECHOES;
+the homepage retains the studio’s paper palette. Header and footer links share
+the existing renderer, with external indicators drawn as SVG for reliable glyphs.
+
+Five additional approved ECHOES environment images fully decoded at their
+declared dimensions. Source and installed hashes and approval records are in
+`ECHOES_ASSETS.json`. The product social image is a 1200 × 630 JPEG browser capture
+of the actual hero, with its own registry metadata and browser theme color.
+
+Browser checks repeated on both pages at 320, 375, 430, 768, 1024 and 1440 px,
+including open project menus, keyboard operation and JavaScript disabled. No
+horizontal overflow or clipped copy; all twelve product image instances decoded.
+Reduced-motion mode was also exercised while capturing the final hero and
+checking the keyboard skip link.
+
+Representative palette contrast ratios: primary text on the page background
+17.07:1, muted body text 9.23:1, popup text 8.33:1, accent text 13.66:1 and CTA
+label 14.03:1. These are palette checks, not a claim of a full accessibility audit.
+Both social JPEGs are fully decoded from source, build and local HTTP by
+`verify:seo`; all WebP build bytes match their source files.

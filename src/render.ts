@@ -14,7 +14,6 @@ import {
   isIndexableContext,
   pages,
   site,
-  socialImageUrl,
   websiteJsonLd,
   type DeployContext,
   type PageId,
@@ -23,7 +22,7 @@ import {
 
 export type RenderedPage = PageId | 'not-found'
 
-const externalArrow = '<span aria-hidden="true">↗</span>'
+const externalArrow = '<svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false"><path d="M3 9 9 3M3 3h6v6" fill="none" stroke="currentColor" stroke-width="1.4" /></svg>'
 
 export const escapeHtml = (value: string): string =>
   value
@@ -245,8 +244,10 @@ const renderEchoes = (): string => `
   ${renderHeader('echoes')}
   <main id="main-content" class="echoes-page">
     <section class="echoes-hero" id="top" aria-labelledby="echoes-title">
+      <img class="echoes-hero-world" src="/echoes/resonance-world.webp" width="1600" height="900" alt="" aria-hidden="true" fetchpriority="high" />
+      <div class="echoes-hero-inner">
       <div class="echoes-hero-copy reveal">
-        <p class="eyebrow">A small world by Snugzap</p>
+        <p class="eyebrow">Story-driven · Turn-based RPG</p>
         <h1 id="echoes-title">${escapeHtml(echoes.name)}</h1>
         <p class="echoes-subtitle" lang="zh-Hant">${escapeHtml(echoes.subtitle)}</p>
         <p class="echoes-tagline">${echoes.tagline.split('\n').map(escapeHtml).join('<br>')}</p>
@@ -255,11 +256,12 @@ const renderEchoes = (): string => `
         <p class="status status--active echoes-status"><span class="status-mark" aria-hidden="true"></span>${escapeHtml(echoes.status)}</p>
       </div>
       <div class="echoes-key-visual reveal" role="img" aria-label="ECHOES companions: Arlo, Cillian and Luca">
-        <div class="echoes-orbit" aria-hidden="true"></div>
-        <img class="echoes-visual-arlo" src="${echoes.characters[0].image}" width="480" height="640" alt="" fetchpriority="high" />
+        <div class="echoes-orbit" aria-hidden="true"><span></span></div>
+        <img class="echoes-visual-arlo" src="${echoes.characters[0].image}" width="480" height="640" alt="" />
         <img class="echoes-visual-cillian" src="${echoes.characters[2].image}" width="480" height="640" alt="" />
         <img class="echoes-visual-luca" src="${echoes.characters[1].image}" width="480" height="640" alt="" />
         <p class="echoes-visual-caption" aria-hidden="true">Across time. Across worlds.</p>
+      </div>
       </div>
     </section>
 
@@ -272,9 +274,12 @@ const renderEchoes = (): string => `
         <p class="section-index">01 / Game overview</p>
         <div><h2 id="overview-title">Connections in a fractured world.</h2><p>${escapeHtml(echoes.overview)}</p></div>
       </div>
-      <div class="echoes-feature-grid">${echoes.features.map((feature) => `
-        <article class="echoes-feature"><h3>${escapeHtml(feature.title)}</h3><p>${escapeHtml(feature.description)}</p></article>
+      <div class="echoes-world-layout">
+      <figure class="echoes-world-art"><img src="/echoes/frost-district.webp" width="1672" height="941" alt="A frost-covered district of Ashenveil, with blue fractures across the ground" loading="lazy" decoding="async" /><figcaption>Ashenveil / Chapter 1 environment artwork</figcaption></figure>
+      <div class="echoes-feature-grid">${echoes.features.map((feature, index) => `
+        <article class="echoes-feature"><span class="echoes-feature-index" aria-hidden="true">0${index + 1}</span><h3>${escapeHtml(feature.title)}</h3><p>${escapeHtml(feature.description)}</p></article>
       `).join('')}</div>
+      </div>
     </section>
 
     <section class="section-shell" id="combat" aria-labelledby="combat-title">
@@ -282,16 +287,20 @@ const renderEchoes = (): string => `
         <p class="section-index">02 / Combat</p>
         <div><h2 id="combat-title">Every turn is a choice.</h2><p>Turn-based encounters reward attention to your party and the enemy. A clear action timeline helps you plan the next move.</p></div>
       </div>
+      <div class="echoes-combat-layout">
+      <figure class="echoes-combat-media"><img src="/echoes/frost-boss.webp" width="1672" height="941" alt="The frost-lit reactor chamber used for Chapter 1’s boss battle" loading="lazy" decoding="async" /><figcaption>Inside the frost / Battle environment artwork</figcaption></figure>
       <ol class="echoes-combat-list">${echoes.combat.map((step, index) => `
         <li><span class="echoes-step" aria-hidden="true">0${index + 1}</span><div><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.description)}</p></div></li>
       `).join('')}</ol>
+      </div>
     </section>
 
     <section class="section-shell" id="story" aria-labelledby="story-title">
       <div class="section-heading"><p class="section-index">03 / Story</p><div><h2 id="story-title">One world. Many lives.</h2><p>A main journey and personal stories, each revealing another part of ECHOES.</p></div></div>
       <div class="echoes-story-grid">${echoes.stories.map((story) => `
-        <article class="echoes-story" id="${story.id}"><p class="eyebrow"${story.id === 'main-story' ? '' : ' lang="zh-Hant"'}>${escapeHtml(story.subtitle)}</p><h3>${escapeHtml(story.title)}</h3><p>${escapeHtml(story.description)}</p></article>
+        <article class="echoes-story" id="${story.id}"><div class="echoes-story-art"><img src="${story.image}" width="${story.width}" height="${story.height}" alt="${escapeHtml(story.alt)}" loading="lazy" decoding="async" /></div><div class="echoes-story-copy"><p class="eyebrow"${story.id === 'main-story' ? '' : ' lang="zh-Hant"'}>${escapeHtml(story.subtitle)}</p><h3>${escapeHtml(story.title)}</h3><p>${escapeHtml(story.description)}</p></div></article>
       `).join('')}</div>
+      <p class="echoes-media-note">Environment artwork from the world of ECHOES.</p>
     </section>
 
     <section class="section-shell" id="characters" aria-labelledby="characters-title">
@@ -309,6 +318,7 @@ const renderEchoes = (): string => `
     </section>
 
     <section class="section-shell echoes-final" aria-labelledby="echoes-final-title">
+      <div class="echoes-final-orbit" aria-hidden="true"></div>
       <p class="eyebrow">Your first resonance awaits</p><h2 id="echoes-final-title">Step into ECHOES.</h2><p>Start the Chapter 1 web demo in your browser.</p>${renderPlayLink()}
     </section>
   </main>
@@ -318,8 +328,8 @@ const renderEchoes = (): string => `
 const renderSocialMeta = (page: SitePage): string => {
   const title = escapeHtml(page.title)
   const description = escapeHtml(page.description)
-  const image = escapeHtml(socialImageUrl)
-  const alt = escapeHtml(site.socialImage.alt)
+  const image = escapeHtml(canonicalUrl(page.socialImage.path))
+  const alt = escapeHtml(page.socialImage.alt)
   const url = escapeHtml(canonicalUrl(page.path))
   const jsonLd = page.id === 'home' ? websiteJsonLd : {
     '@context': 'https://schema.org',
@@ -338,9 +348,9 @@ const renderSocialMeta = (page: SitePage): string => {
     <meta property="og:description" content="${description}" />
     <meta property="og:url" content="${url}" />
     <meta property="og:image" content="${image}" />
-    <meta property="og:image:type" content="${escapeHtml(site.socialImage.mimeType)}" />
-    <meta property="og:image:width" content="${site.socialImage.width}" />
-    <meta property="og:image:height" content="${site.socialImage.height}" />
+    <meta property="og:image:type" content="${escapeHtml(page.socialImage.mimeType)}" />
+    <meta property="og:image:width" content="${page.socialImage.width}" />
+    <meta property="og:image:height" content="${page.socialImage.height}" />
     <meta property="og:image:alt" content="${alt}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${title}" />
@@ -358,7 +368,7 @@ export const renderDocument = (page: RenderedPage, context: DeployContext): stri
   const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : renderNotFound()
 
   return `<!doctype html>
-<html lang="${site.lang}">
+<html lang="${site.lang}"${page === 'echoes' ? ' class="echoes-document"' : ''}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -368,10 +378,11 @@ export const renderDocument = (page: RenderedPage, context: DeployContext): stri
     ${metadata ? `<link rel="canonical" href="${escapeHtml(canonicalUrl(metadata.path))}" />` : ''}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles.css" />
-    <meta name="theme-color" content="${escapeHtml(site.themeColor)}" />
+    ${page === 'echoes' ? '<link rel="stylesheet" href="/src/echoes.css" />' : ''}
+    <meta name="theme-color" content="${escapeHtml(metadata?.themeColor ?? site.themeColor)}" />
     ${metadata ? renderSocialMeta(metadata) : ''}
   </head>
-  <body>
+  <body${page === 'echoes' ? ' class="theme-echoes"' : ''}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <div id="app">
       ${body}

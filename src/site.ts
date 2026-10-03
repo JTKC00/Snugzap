@@ -21,12 +21,22 @@ export const site = {
 
 export type PageId = 'home' | 'echoes'
 
+export type SocialImage = {
+  path: string
+  mimeType: string
+  width: number
+  height: number
+  alt: string
+}
+
 export type SitePage = {
   id: PageId
   path: '/' | `/${string}/`
   indexable: true
   title: string
   description: string
+  themeColor: string
+  socialImage: SocialImage
 }
 
 export const pages = [
@@ -36,6 +46,8 @@ export const pages = [
     indexable: true,
     title: site.title,
     description: site.description,
+    themeColor: site.themeColor,
+    socialImage: site.socialImage,
   },
   {
     id: 'echoes',
@@ -44,6 +56,14 @@ export const pages = [
     title: 'ECHOES — Story-driven Turn-based RPG | Snugzap',
     description:
       'Enter Ashenveil as a Resonator in ECHOES, a story-driven turn-based RPG. Meet its characters, explore tactical battles and play the Chapter 1 web demo.',
+    themeColor: '#080e18',
+    socialImage: {
+      path: '/echoes/echoes-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'ECHOES — A fractured world. Stories that resonate. Arlo, Cillian and Luca against a frost-lit world.',
+    },
   },
 ] as const satisfies readonly SitePage[]
 

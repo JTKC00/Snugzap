@@ -1,0 +1,56 @@
+{
+  "source_repository": "JTKC00/ECHOES",
+  "source_commit": "9c61e4e47f14acc5f28c4f2dd5deffb067a2bb1e",
+  "assets": [
+    {
+      "source": "public/bg/frost-district.png",
+      "source_sha256": "1b91397beed1a17da22eb66c97bd74e79dc7c549dca915b9bca0ffca6f750781",
+      "record": "public-backgrounds",
+      "local": "public/echoes/frost-district.webp",
+      "width": 1672,
+      "height": 941,
+      "local_sha256": "00313bca795fb16bee3e7d50b7fe4d5ee6363f0b24fe8168e698791692397a7a",
+      "bytes": 255962
+    },
+    {
+      "source": "public/bg/frost-boss.png",
+      "source_sha256": "878ef0c2f5be7d9c3309e62d495cb877fe275850743abbeceadcad39800b0b04",
+      "record": "public-backgrounds",
+      "local": "public/echoes/frost-boss.webp",
+      "width": 1672,
+      "height": 941,
+      "local_sha256": "cd5c9b38b0ea38203eef109fb8d67deb23d1a612cd79b4c78a62b85f12e66b05",
+      "bytes": 303858
+    },
+    {
+      "source": "src/assets/story-backgrounds/character-stories/arlo_signal_observation_point.webp",
+      "source_sha256": "cef0329478f602ac5b53d2736a321a382514076ecdf4cdb9062f2a2f7ee420eb",
+      "record": "story-backgrounds-arlo-luca-v2",
+      "local": "public/echoes/arlo-story.webp",
+      "width": 941,
+      "height": 1672,
+      "local_sha256": "cef0329478f602ac5b53d2736a321a382514076ecdf4cdb9062f2a2f7ee420eb",
+      "bytes": 76046
+    },
+    {
+      "source": "src/assets/story-backgrounds/character-stories/cillian/cillian_glimmer_forest_entrance_purple_mist.webp",
+      "source_sha256": "7de1cb589ed166d61de879610c4d9a2feccd0636da657e26fcdb4ffc62a405b0",
+      "record": "story-backgrounds-cillian-v2",
+      "local": "public/echoes/cillian-story.webp",
+      "width": 941,
+      "height": 1672,
+      "local_sha256": "7de1cb589ed166d61de879610c4d9a2feccd0636da657e26fcdb4ffc62a405b0",
+      "bytes": 165418
+    },
+    {
+      "source": "src/assets/home/frost-rift-observation.webp",
+      "source_sha256": "ff37a0a1901cf0d05d693a0f5699c37ac0b68ae1d1353c797277d86c03f94af8",
+      "record": "home-art",
+      "local": "public/echoes/resonance-world.webp",
+      "width": 1600,
+      "height": 900,
+      "local_sha256": "ff37a0a1901cf0d05d693a0f5699c37ac0b68ae1d1353c797277d86c03f94af8",
+      "bytes": 148292
+    }
+  ]
+}

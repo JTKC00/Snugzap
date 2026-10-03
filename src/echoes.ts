@@ -20,9 +20,9 @@ export const echoes = {
     { title: 'Adapt to the encounter', description: 'Build a team that can handle different threats, from the frost-tainted streets to Chapter 1’s boss.' },
   ],
   stories: [
-    { id: 'main-story', title: 'Main Story', subtitle: 'Your first resonance', description: 'Begin with Chapter 1 in Ashenveil. Meet your companions and investigate the frost spreading through the city as the Rift threatens everyday life.' },
-    { id: 'reminiscences', title: 'Reminiscences', subtitle: '追憶短章', description: 'Focused character stories that bring you closer to individual companions. Discover Arlo and Luca through the people, choices and responsibilities that matter to them.' },
-    { id: 'echo-chapters', title: 'Echo Chapters', subtitle: '迴響篇章', description: 'Longer character journeys beyond the main story. Follow Cillian’s route into another part of the ECHOES world.' },
+    { id: 'main-story', title: 'Main Story', subtitle: 'Your first resonance', description: 'Begin with Chapter 1 in Ashenveil. Meet your companions and investigate the frost spreading through the city as the Rift threatens everyday life.', image: '/echoes/frost-district.webp', width: 1672, height: 941, alt: 'The frozen streets of Ashenveil under a dark blue sky' },
+    { id: 'reminiscences', title: 'Reminiscences', subtitle: '追憶短章', description: 'Focused character stories that bring you closer to individual companions. Discover Arlo and Luca through the people, choices and responsibilities that matter to them.', image: '/echoes/arlo-story.webp', width: 941, height: 1672, alt: 'A signal observation point from Arlo’s character story' },
+    { id: 'echo-chapters', title: 'Echo Chapters', subtitle: '迴響篇章', description: 'Longer character journeys beyond the main story. Follow Cillian’s route into another part of the ECHOES world.', image: '/echoes/cillian-story.webp', width: 941, height: 1672, alt: 'Purple mist at the entrance to a forest in Cillian’s character story' },
   ],
   characters: [
     { id: 'arlo', name: 'Arlo Lin', nativeName: '阿洛・林', role: 'Field investigator', description: 'An investigator on the front line. Arlo brings a practical blade and a sense of responsibility to your journey through Ashenveil.', image: '/echoes/arlo_lin.webp', alt: 'Arlo Lin in a field uniform and scarf, carrying a short sword' },

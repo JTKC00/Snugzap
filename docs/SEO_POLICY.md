@@ -28,7 +28,7 @@ Until then, do not add the URL to the sitemap or to internal navigation.
 | Concern | Source |
 | --- | --- |
 | Visible page copy and project links | `src/render.ts`, `src/projects.ts` and `src/echoes.ts` |
-| Canonical origin, titles, descriptions, social image, WebSite identity | `src/site.ts` |
+| Canonical origin, page titles, descriptions, theme colors, social images, WebSite identity | `src/site.ts` |
 | Sitemap membership | indexable pages in `src/site.ts` |
 | robots.txt and preview `X-Robots-Tag` | generated from the deploy context at build time |
 | Security headers | `netlify.toml` |
@@ -77,7 +77,14 @@ Valid JSON is not a rich result. Google's site-name treatment is not guaranteed 
 
 `public/snugzap-og.jpg` must be a real JPEG that a decoder can expand to pixels. The declared type is `image/jpeg` and the declared size is 1200 by 630. Metadata in `src/site.ts` must match those bytes. A file-size check or a JPEG header read is not enough. If decoding fails, replace the file from a verified image and keep the approved paper, wordmark and tagline design. Do not describe a broken file as passing because the build copied it.
 
-The image URL in metadata is the production URL, including on previews.
+The ECHOES product page uses `public/echoes/echoes-og.jpg`, a browser capture of
+its actual hero with the approved game artwork and product branding. It is also
+a fully decoded 1200 by 630 JPEG. Each page’s social descriptor and theme color
+live in the existing `src/site.ts` registry; the homepage retains its original
+image and paper theme. Both images are decoded and compared against build output
+by `verify:seo`, including local HTTP responses.
+
+All image URLs in metadata use the production origin, including on previews.
 
 ## Dates and claims
 

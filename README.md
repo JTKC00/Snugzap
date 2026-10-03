@@ -18,6 +18,7 @@ There is no client-side router, CMS or UI framework. The homepage and ECHOES pro
 - `src/projects.ts` — the six public projects, their lifecycle and approved links
 - `src/render.ts` — the homepage, ECHOES product page and 404 markup
 - `src/echoes.ts` — ECHOES product copy, story summaries and the expandable character set
+- `src/echoes.css` — ECHOES-only visual identity; the studio homepage keeps its own style
 - `public/echoes/` — verified artwork copied from ECHOES; provenance is in `docs/ECHOES_CONTENT.md`
 - `src/site.ts` — canonical origin, titles, descriptions, social image and the indexable page registry
 - `src/plugin.ts` — writes that markup into the dev server and the production build, plus `robots.txt`, `sitemap.xml` and preview `noindex` headers

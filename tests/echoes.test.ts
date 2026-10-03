@@ -61,6 +61,11 @@ describe('ECHOES product page', () => {
       expect(html).toContain(`${key}" content="${escapeHtml(page.description)}"`)
     }
     expect(html).toContain(`og:url" content="${canonicalUrl(page.path)}"`)
+    expect(html).toContain('class="theme-echoes"')
+    expect(html).toContain('href="/src/echoes.css"')
+    expect(html).toContain(`theme-color" content="${page.themeColor}"`)
+    expect(html).toContain(`og:image" content="${canonicalUrl(page.socialImage.path)}"`)
+    expect(html).toContain(`twitter:image" content="${canonicalUrl(page.socialImage.path)}"`)
     const jsonLd = JSON.parse(html.match(/<script type="application\/ld\+json">([^<]*)<\/script>/)?.[1] ?? '{}')
     expect(jsonLd).toMatchObject({ '@type': 'WebPage', name: page.title, url: canonicalUrl(page.path), isPartOf: { url: canonicalUrl('/') } })
     expect(html.match(/application\/ld\+json/g)).toHaveLength(1)
