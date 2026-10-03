@@ -39,9 +39,8 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
-        label: 'Play web demo',
-        href: 'https://echoes.snugzap.com/',
-        external: true,
+        label: 'Explore ECHOES',
+        href: '/echoes/',
         primary: true,
       },
     ],

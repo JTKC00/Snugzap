@@ -40,7 +40,8 @@ describe('static homepage', () => {
       }
     }
 
-    expect(home).toContain('https://echoes.snugzap.com/')
+    expect(home).toContain('href="/echoes/"')
+    expect(home).not.toContain('href="https://echoes.snugzap.com/"')
     expect(home).not.toContain('https://jtkc00.github.io/ECHOES/')
     expect(home).not.toContain('github.com/JTKC00/ECHOES')
     expect(home.toLowerCase()).not.toContain('localhost')
@@ -115,10 +116,12 @@ describe('indexability contexts', () => {
     expect(resolveDeployContext('qa')).toBe('unknown')
 
     for (const context of ['deploy-preview', 'branch-deploy', 'dev', 'unknown'] as const) {
-      const html = renderDocument('home', context)
-      expect(html).toContain('<meta name="robots" content="noindex" />')
-      expect(html).toContain(`rel="canonical" href="${canonicalUrl('/')}"`)
-      expect(html).not.toContain('netlify.app')
+      for (const page of indexablePages) {
+        const html = renderDocument(page.id, context)
+        expect(html).toContain('<meta name="robots" content="noindex" />')
+        expect(html).toContain(`rel="canonical" href="${canonicalUrl(page.path)}"`)
+        expect(html).not.toContain('netlify.app')
+      }
       expect(renderRobots(context)).not.toContain('Disallow')
       expect(renderRobots(context)).not.toContain('Sitemap:')
       expect(renderRobotsHeader(context)).toContain('X-Robots-Tag: noindex')
@@ -130,13 +133,14 @@ describe('indexability contexts', () => {
     expect(renderRobotsHeader('production')).toBeNull()
   })
 
-  it('publishes only the homepage in the sitemap and keeps the 404 out', () => {
-    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/'])
+  it('publishes the homepage and ECHOES product page in the sitemap and keeps the 404 out', () => {
+    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/'])
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/echoes/</loc>')
     expect(renderSitemap()).not.toContain('lastmod')
     expect(renderSitemap()).not.toContain('echoes.snugzap.com')
     expect(renderSitemap()).not.toContain('404')
-    expect(renderSitemap().match(/<loc>/g)).toHaveLength(1)
+    expect(renderSitemap().match(/<loc>/g)).toHaveLength(2)
 
     expect(missing).toContain('<meta name="robots" content="noindex" />')
     expect(missing).toContain('This page is not here.')

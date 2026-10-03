@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import { snugzapSitePlugin } from './src/plugin.ts'
+import { pageEntry, pages } from './src/site.ts'
 
 export default defineConfig({
   appType: 'mpa',
@@ -8,7 +9,7 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        main: 'index.html',
+        ...Object.fromEntries(pages.map((page) => [page.id, pageEntry(page)])),
         notFound: '404.html',
       },
     },

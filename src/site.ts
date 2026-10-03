@@ -19,11 +19,11 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home'
+export type PageId = 'home' | 'echoes'
 
 export type SitePage = {
   id: PageId
-  path: '/'
+  path: '/' | `/${string}/`
   indexable: true
   title: string
   description: string
@@ -37,7 +37,17 @@ export const pages = [
     title: site.title,
     description: site.description,
   },
+  {
+    id: 'echoes',
+    path: '/echoes/',
+    indexable: true,
+    title: 'ECHOES — Story-driven Turn-based RPG | Snugzap',
+    description:
+      'Enter Ashenveil as a Resonator in ECHOES, a story-driven turn-based RPG. Meet its characters, explore tactical battles and play the Chapter 1 web demo.',
+  },
 ] as const satisfies readonly SitePage[]
+
+export const pageEntry = (page: SitePage): string => `${page.path.slice(1)}index.html`
 
 export const indexablePages = pages.filter((page) => page.indexable)
 

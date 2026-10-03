@@ -62,9 +62,10 @@ const waitForServer = async (url) => {
   fail(`preview server did not respond at ${url}`)
 }
 
-const startPreview = async () => {
-  const child = spawn(viteBin, ['preview', '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
+const startPreview = async (mode = 'preview') => {
+  const child = spawn(viteBin, [...(mode === 'preview' ? ['preview'] : []), '--host', '127.0.0.1', '--port', '4173', '--strictPort'], {
     cwd: root,
+    env: mode === 'dev' ? { ...process.env, CONTEXT: 'dev' } : process.env,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   let logs = ''
@@ -88,6 +89,37 @@ const stopPreview = async (child) => {
   await new Promise((resolve) => child.once('exit', resolve))
 }
 
+const assertProductHtml = (html, expectNoindex) => {
+  assert(html.includes('<h1 id="echoes-title">ECHOES</h1>'), 'ECHOES page is missing its product H1')
+  assert((html.match(/<h1\b/g) ?? []).length === 1, 'ECHOES page must have one H1')
+  assert(html.includes('rel="canonical" href="https://www.snugzap.com/echoes/"'), 'ECHOES canonical is incorrect')
+  assert(html.includes('og:url" content="https://www.snugzap.com/echoes/"'), 'ECHOES social URL is incorrect')
+  assert(html.includes('<title>ECHOES'), 'ECHOES page uses the homepage title')
+  assert(html.includes('og:title" content="ECHOES'), 'ECHOES social title is incorrect')
+  assert(html.includes('twitter:title" content="ECHOES'), 'ECHOES Twitter title is incorrect')
+  assert(html.includes('"@type":"WebPage"'), 'ECHOES structured data is missing')
+  assert((html.match(/href="https:\/\/echoes\.snugzap\.com\/"/g) ?? []).length === 2, 'ECHOES must have two game CTAs')
+  assert(html.includes('name="robots" content="noindex"') === expectNoindex, 'ECHOES indexability is incorrect')
+  for (const id of ['overview', 'combat', 'story', 'characters', 'development']) {
+    assert(html.includes(`id="${id}"`), `ECHOES is missing ${id}`)
+  }
+  for (const needle of forbidden) {
+    assert(!html.toLowerCase().includes(needle.toLowerCase()), `ECHOES contains forbidden URL fragment ${needle}`)
+  }
+}
+
+const assertProductFiles = (expectNoindex) => {
+  const html = read('echoes/index.html')
+  assertProductHtml(html, expectNoindex)
+  assert(html.includes('href="/assets/'), 'ECHOES CSS is not a built asset')
+  assert(!html.includes('/src/'), 'ECHOES still depends on source files')
+  for (const name of ['arlo_lin', 'luca_medical_apprentice', 'cillian_apprentice_sr']) {
+    const source = readFileSync(path.join(root, 'public', 'echoes', `${name}.webp`))
+    const built = readFileSync(path.join(dist, 'echoes', `${name}.webp`))
+    assert(source.equals(built), `${name} built artwork differs from source`)
+  }
+}
+
 const assertPreviewFiles = () => {
   const html = read('index.html')
   const missing = read('404.html')
@@ -96,7 +128,8 @@ const assertPreviewFiles = () => {
   assert(html.includes('name="robots" content="noindex"'), 'preview homepage is missing noindex')
   assert(html.includes('rel="canonical" href="https://www.snugzap.com/"'), 'preview canonical is not production')
   assert(!html.includes('netlify.app'), 'preview HTML promotes a preview host')
-  assert(html.includes('https://echoes.snugzap.com/'), 'preview HTML lost the ECHOES production URL')
+  assert(html.includes('href="/echoes/"'), 'preview homepage lost the ECHOES product link')
+  assertProductFiles(true)
   assert(html.includes('https://kcalcue.snugzap.com/'), 'preview HTML lost the KcalCue production URL')
   assert(missing.includes('name="robots" content="noindex"'), 'preview 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'preview 404 has a canonical')
@@ -118,7 +151,8 @@ const assertProductionFiles = () => {
   assert((html.match(/<h1\b/g) ?? []).length === 1, 'production HTML does not have exactly one H1')
   assert(html.includes('href="/assets/'), 'production CSS is not linked as a built asset')
   assert(!html.includes('/src/main.ts'), 'production HTML still depends on the old client renderer')
-  assert(html.includes('https://echoes.snugzap.com/'), 'production HTML lost the ECHOES production URL')
+  assert(html.includes('href="/echoes/"'), 'production homepage lost the ECHOES product link')
+  assertProductFiles(false)
   assert(html.includes('https://kcalcue.snugzap.com/'), 'production HTML lost the KcalCue production URL')
   for (const name of ['ECHOES', 'SwiftLocal', 'KcalCue', 'MatterDock', 'Personal Finance Manager', 'Bookstore']) {
     assert(html.includes(name), `production HTML is missing ${name}`)
@@ -130,7 +164,8 @@ const assertProductionFiles = () => {
   assert(!robots.includes('Disallow'), 'production robots.txt blocks crawling')
   assert(sitemap.includes('<loc>https://www.snugzap.com/</loc>'), 'production sitemap is missing the homepage')
   assert(!sitemap.includes('lastmod'), 'production sitemap fabricates lastmod')
-  assert((sitemap.match(/<loc>/g) ?? []).length === 1, 'production sitemap has more than the homepage')
+  assert(sitemap.includes('<loc>https://www.snugzap.com/echoes/</loc>'), 'production sitemap is missing ECHOES')
+  assert((sitemap.match(/<loc>/g) ?? []).length === 2, 'production sitemap must contain exactly the two published pages')
   assert(!sitemap.includes('404'), 'production sitemap includes the 404')
   assert(missing.includes('name="robots" content="noindex"'), 'production 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'production 404 uses a homepage canonical')
@@ -148,7 +183,7 @@ const assertHttp = async (expectNoindex) => {
   const homeResponse = await fetch('http://127.0.0.1:4173/')
   const homeHtml = await homeResponse.text()
   assert(homeResponse.status === 200, `homepage status ${homeResponse.status}`)
-  assert(homeHtml.includes('https://echoes.snugzap.com/'), 'served homepage lost the ECHOES URL')
+  assert(homeHtml.includes('href="/echoes/"'), 'served homepage lost the ECHOES product link')
   assert(homeHtml.includes('https://kcalcue.snugzap.com/'), 'served homepage lost the KcalCue URL')
   const robots = homeResponse.headers.get('x-robots-tag')
   if (expectNoindex) {
@@ -157,6 +192,23 @@ const assertHttp = async (expectNoindex) => {
   } else {
     assert(!homeHtml.toLowerCase().includes('noindex'), 'served production homepage contains noindex')
     assert(robots === null, `served production X-Robots-Tag was ${robots}`)
+  }
+
+  for (const url of ['/echoes/', '/echoes/?from=home', '/echoes/index.html']) {
+    const response = await fetch(`http://127.0.0.1:4173${url}`)
+    const html = await response.text()
+    assert(response.status === 200, `${url} status ${response.status}`)
+    assertProductHtml(html, expectNoindex)
+    assert(response.headers.get('x-robots-tag') === (expectNoindex ? 'noindex' : null), `${url} incorrect robots header`)
+  }
+  const redirect = await fetch('http://127.0.0.1:4173/echoes?from=home', { redirect: 'manual' })
+  assert(redirect.status === 308, `/echoes status ${redirect.status}`)
+  assert(redirect.headers.get('location') === '/echoes/?from=home', '/echoes redirect lost path or query')
+  for (const url of ['/echoes/characters/', '/echoes/world/', '/echoes/news/', '/echoes/missing']) {
+    const response = await fetch(`http://127.0.0.1:4173${url}`)
+    const html = await response.text()
+    assert(response.status === 404, `${url} must remain 404`)
+    assert(html.includes('noindex') && !html.includes('rel="canonical"'), `${url} has incorrect 404 metadata`)
   }
 
   const missingResponse = await fetch('http://127.0.0.1:4173/this-page-does-not-exist')
@@ -200,12 +252,26 @@ const main = async () => {
 
   await build('not-a-netlify-context')
   assert(read('index.html').includes('noindex'), 'unknown context did not default to noindex')
+  assertProductFiles(true)
   assert(read('_headers').includes('X-Robots-Tag: noindex'), 'unknown context did not emit noindex headers')
   console.log('PASS unknown context defaults to noindex')
 
   await build('production')
   assertProductionFiles()
   console.log('PASS production rebuild cleared the unknown-context artifact')
+
+  await build(undefined)
+  assertPreviewFiles()
+  console.log('PASS unset context defaults to noindex')
+  server = await startPreview('dev')
+  try {
+    await assertHttp(true)
+    console.log('PASS dev server nested page routes')
+  } finally {
+    await stopPreview(server)
+  }
+  await build('production')
+  assertProductionFiles()
 }
 
 main().catch((error) => {

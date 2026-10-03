@@ -1,3 +1,4 @@
+import { echoes } from './echoes.ts'
 import {
   activeProjects,
   archivedProjects,
@@ -10,13 +11,16 @@ import {
   canonicalUrl,
   indexablePages,
   isIndexableContext,
+  pages,
   site,
   socialImageUrl,
   websiteJsonLd,
   type DeployContext,
+  type PageId,
+  type SitePage,
 } from './site.ts'
 
-export type RenderedPage = 'home' | 'not-found'
+export type RenderedPage = PageId | 'not-found'
 
 const externalArrow = '<span aria-hidden="true">↗</span>'
 
@@ -212,12 +216,98 @@ const renderNotFound = (): string => `
   ${renderFooter()}
 `
 
-const renderSocialMeta = (): string => {
-  const title = escapeHtml(site.title)
-  const description = escapeHtml(site.description)
+const renderPlayLink = (): string =>
+  `<a class="echoes-play" href="${escapeHtml(echoes.playUrl)}" target="_blank" rel="noreferrer">Play ECHOES ${externalArrow}</a>`
+
+const renderEchoes = (): string => `
+  ${renderHeader('echoes')}
+  <main id="main-content" class="echoes-page">
+    <section class="echoes-hero" id="top" aria-labelledby="echoes-title">
+      <div class="echoes-hero-copy reveal">
+        <p class="eyebrow">A small world by Snugzap</p>
+        <h1 id="echoes-title">${escapeHtml(echoes.name)}</h1>
+        <p class="echoes-subtitle" lang="zh-Hant">${escapeHtml(echoes.subtitle)}</p>
+        <p class="echoes-tagline">${echoes.tagline.split('\n').map(escapeHtml).join('<br>')}</p>
+        <p class="hero-description">${escapeHtml(echoes.positioning)}</p>
+        <div class="echoes-actions">${renderPlayLink()}<a class="text-link" href="#overview">Discover the game <span aria-hidden="true">↓</span></a></div>
+        <p class="status status--active echoes-status"><span class="status-mark" aria-hidden="true"></span>${escapeHtml(echoes.status)}</p>
+      </div>
+      <div class="echoes-key-visual reveal" role="img" aria-label="ECHOES companions: Arlo, Cillian and Luca">
+        <div class="echoes-orbit" aria-hidden="true"></div>
+        <img class="echoes-visual-arlo" src="${echoes.characters[0].image}" width="480" height="640" alt="" fetchpriority="high" />
+        <img class="echoes-visual-cillian" src="${echoes.characters[2].image}" width="480" height="640" alt="" />
+        <img class="echoes-visual-luca" src="${echoes.characters[1].image}" width="480" height="640" alt="" />
+        <p class="echoes-visual-caption" aria-hidden="true">Across time. Across worlds.</p>
+      </div>
+    </section>
+
+    <nav class="echoes-nav" aria-label="ECHOES sections">
+      <a href="#overview">Overview</a><a href="#combat">Combat</a><a href="#story">Story</a><a href="#characters">Characters</a><a href="#development">Development</a>
+    </nav>
+
+    <section class="section-shell" id="overview" aria-labelledby="overview-title">
+      <div class="section-heading">
+        <p class="section-index">01 / Game overview</p>
+        <div><h2 id="overview-title">Connections in a fractured world.</h2><p>${escapeHtml(echoes.overview)}</p></div>
+      </div>
+      <div class="echoes-feature-grid">${echoes.features.map((feature) => `
+        <article class="echoes-feature"><h3>${escapeHtml(feature.title)}</h3><p>${escapeHtml(feature.description)}</p></article>
+      `).join('')}</div>
+    </section>
+
+    <section class="section-shell" id="combat" aria-labelledby="combat-title">
+      <div class="section-heading">
+        <p class="section-index">02 / Combat</p>
+        <div><h2 id="combat-title">Every turn is a choice.</h2><p>Turn-based encounters reward attention to your party and the enemy. A clear action timeline helps you plan the next move.</p></div>
+      </div>
+      <ol class="echoes-combat-list">${echoes.combat.map((step, index) => `
+        <li><span class="echoes-step" aria-hidden="true">0${index + 1}</span><div><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.description)}</p></div></li>
+      `).join('')}</ol>
+    </section>
+
+    <section class="section-shell" id="story" aria-labelledby="story-title">
+      <div class="section-heading"><p class="section-index">03 / Story</p><div><h2 id="story-title">One world. Many lives.</h2><p>A main journey and personal stories, each revealing another part of ECHOES.</p></div></div>
+      <div class="echoes-story-grid">${echoes.stories.map((story) => `
+        <article class="echoes-story" id="${story.id}"><p class="eyebrow"${story.id === 'main-story' ? '' : ' lang="zh-Hant"'}>${escapeHtml(story.subtitle)}</p><h3>${escapeHtml(story.title)}</h3><p>${escapeHtml(story.description)}</p></article>
+      `).join('')}</div>
+    </section>
+
+    <section class="section-shell" id="characters" aria-labelledby="characters-title">
+      <div class="section-heading"><p class="section-index">04 / Characters</p><div><h2 id="characters-title">Meet a few of the echoes.</h2><p>Companions with their own strengths, responsibilities and stories to discover.</p></div></div>
+      <div class="echoes-character-grid">${echoes.characters.map((character) => `
+        <article class="echoes-character" id="character-${character.id}">
+          <div class="echoes-character-art"><img src="${escapeHtml(character.image)}" alt="${escapeHtml(character.alt)}" width="480" height="640" loading="lazy" decoding="async" /></div>
+          <div class="echoes-character-copy"><p class="eyebrow">${escapeHtml(character.role)}</p><h3>${escapeHtml(character.name)}</h3><p class="echoes-native-name" lang="zh-Hant">${escapeHtml(character.nativeName)}</p><p>${escapeHtml(character.description)}</p></div>
+        </article>
+      `).join('')}</div>
+    </section>
+
+    <section class="section-shell" id="development" aria-labelledby="development-title">
+      <div class="section-heading"><p class="section-index">05 / Development</p><div><h2 id="development-title">A world still in motion.</h2><p>${escapeHtml(echoes.development)}</p><p class="status status--active"><span class="status-mark" aria-hidden="true"></span>${escapeHtml(echoes.status)}</p><p>The demo is a first step into ECHOES. Content and balance will continue to evolve as development progresses.</p></div></div>
+    </section>
+
+    <section class="section-shell echoes-final" aria-labelledby="echoes-final-title">
+      <p class="eyebrow">Your first resonance awaits</p><h2 id="echoes-final-title">Step into ECHOES.</h2><p>Start the Chapter 1 web demo in your browser.</p>${renderPlayLink()}
+    </section>
+  </main>
+  ${renderFooter()}
+`
+
+const renderSocialMeta = (page: SitePage): string => {
+  const title = escapeHtml(page.title)
+  const description = escapeHtml(page.description)
   const image = escapeHtml(socialImageUrl)
   const alt = escapeHtml(site.socialImage.alt)
-  const url = escapeHtml(canonicalUrl('/'))
+  const url = escapeHtml(canonicalUrl(page.path))
+  const jsonLd = page.id === 'home' ? websiteJsonLd : {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: page.title,
+    url: canonicalUrl(page.path),
+    description: page.description,
+    inLanguage: site.lang,
+    isPartOf: { '@type': 'WebSite', name: site.name, url: canonicalUrl('/') },
+  }
 
   return `
     <meta property="og:type" content="website" />
@@ -235,15 +325,15 @@ const renderSocialMeta = (): string => {
     <meta name="twitter:description" content="${description}" />
     <meta name="twitter:image" content="${image}" />
     <meta name="twitter:image:alt" content="${alt}" />
-    <script type="application/ld+json">${serializeJsonLd(websiteJsonLd)}</script>`
+    <script type="application/ld+json">${serializeJsonLd(jsonLd)}</script>`
 }
 
 export const renderDocument = (page: RenderedPage, context: DeployContext): string => {
-  const indexable = page === 'home' && isIndexableContext(context)
-  const title = page === 'home' ? site.title : `Page not found — ${site.name}`
-  const description =
-    page === 'home' ? site.description : 'This page is not part of the Snugzap homepage.'
-  const body = page === 'home' ? renderHome() : renderNotFound()
+  const metadata = pages.find((entry) => entry.id === page)
+  const indexable = metadata?.indexable === true && isIndexableContext(context)
+  const title = metadata?.title ?? `Page not found — ${site.name}`
+  const description = metadata?.description ?? 'This page is not part of the Snugzap website.'
+  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : renderNotFound()
 
   return `<!doctype html>
 <html lang="${site.lang}">
@@ -253,11 +343,11 @@ export const renderDocument = (page: RenderedPage, context: DeployContext): stri
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     ${indexable ? '' : '<meta name="robots" content="noindex" />'}
-    ${page === 'home' ? `<link rel="canonical" href="${escapeHtml(canonicalUrl('/'))}" />` : ''}
+    ${metadata ? `<link rel="canonical" href="${escapeHtml(canonicalUrl(metadata.path))}" />` : ''}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles.css" />
     <meta name="theme-color" content="${escapeHtml(site.themeColor)}" />
-    ${page === 'home' ? renderSocialMeta() : ''}
+    ${metadata ? renderSocialMeta(metadata) : ''}
   </head>
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>

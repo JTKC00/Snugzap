@@ -4,9 +4,9 @@ This document owns how Snugzap decides what can be published, crawled and indexe
 
 ## What this site is
 
-Snugzap is one English homepage for James' independent software, games and experiments. The canonical origin is `https://www.snugzap.com`. The only indexable URL is `https://www.snugzap.com/`.
+Snugzap is the English public home for James' independent software, games and experiments. The canonical origin is `https://www.snugzap.com`. The indexable URLs are `https://www.snugzap.com/` and the ECHOES product introduction at `https://www.snugzap.com/echoes/`.
 
-Project detail pages, translations, a blog, keyword landing pages, accounts and a CMS are not part of this site. Do not invent those URLs.
+Only the ECHOES product introduction is published alongside the homepage. Future character, world or news sections, other project pages, translations, a blog, accounts and a CMS are not yet published. Do not invent those URLs.
 
 Sibling sites stay separate. `james.sharing.snugzap.com` is Notes. Product destinations such as `https://echoes.snugzap.com/` are the products themselves, not pages of this homepage. Do not put them in this site's sitemap.
 
@@ -27,13 +27,13 @@ Until then, do not add the URL to the sitemap or to internal navigation.
 
 | Concern | Source |
 | --- | --- |
-| Visible homepage copy and project links | `src/render.ts` and `src/projects.ts` |
+| Visible page copy and project links | `src/render.ts`, `src/projects.ts` and `src/echoes.ts` |
 | Canonical origin, titles, descriptions, social image, WebSite identity | `src/site.ts` |
 | Sitemap membership | indexable pages in `src/site.ts` |
 | robots.txt and preview `X-Robots-Tag` | generated from the deploy context at build time |
 | Security headers | `netlify.toml` |
 
-Do not keep a second hand-written copy of the homepage in `index.html`. The Vite plugin renders the same document for development and for the production build.
+Do not keep a second hand-written copy of a page in its HTML entry. The Vite plugin renders the same document for development and the production build. Entries are mapped by their full path relative to the Vite root, so a nested product entry cannot inherit homepage metadata. Build inputs and sitemap membership come from the page registry.
 
 Canonical and social URLs always use `https://www.snugzap.com`, including on Deploy Previews. A preview host is not a canonical identifier.
 
@@ -46,7 +46,7 @@ The page language is English (`en`). Do not add `hreflang` until a complete tran
 These are different controls:
 
 - **Crawl** means a robot may fetch the URL. Production `robots.txt` allows fetching and points at the canonical sitemap. Previews also allow fetching so a robot can see `noindex`. `robots.txt` `Disallow` is not how this site keeps previews out of search results.
-- **Index** means a search engine may keep the URL as a result. Only the production homepage is eligible to be indexed. Previews, branch deploys, local dev, unknown build contexts and the 404 page send `noindex`.
+- **Index** means a search engine may keep the URL as a result. Only registered pages in the production build are eligible to be indexed. Previews, branch deploys, local dev, unknown build contexts and the 404 page send `noindex`.
 - **Access** means a person or client can open the URL. `noindex` is not authentication and does not make a preview private.
 
 Netlify may also add its own preview `noindex`. That is an extra check, not the one this repository relies on.
@@ -55,19 +55,21 @@ Netlify may also add its own preview `noindex`. That is an extra check, not the 
 
 Netlify sets `CONTEXT` to `production`, `deploy-preview`, `branch-deploy` or `dev`. The build reads that value.
 
-- `production` renders an indexable homepage, a sitemap of that one URL, and a `robots.txt` sitemap line. It does not add `noindex` to the homepage and does not emit a preview `_headers` file.
+- `production` renders an indexable homepage and ECHOES product page, a sitemap of those two URLs, and a `robots.txt` sitemap line. It does not add `noindex` to the homepage and does not emit a preview `_headers` file.
 - Every other context, including a missing or unrecognised `CONTEXT`, renders `noindex` in HTML and writes `X-Robots-Tag: noindex` to `dist/_headers`. Its `robots.txt` allows fetching and does not advertise a sitemap.
 - The safe default is `noindex`. A local `npm run build` without `CONTEXT` is therefore not the production artifact.
 - `404.html` is always `noindex`. It has no canonical URL and no WebSite or product schema. It is not in the sitemap.
 - There is no `/* -> /index.html` rewrite. An unknown path must return 404, not the homepage with status 200.
 
-A preview build followed by a production build must leave a production `dist/` with no leftover preview `_headers` or homepage `noindex`. Vite empties the output directory at the start of each build.
+A preview build followed by a production build must leave a production `dist/` with no leftover preview `_headers` or page `noindex`. Vite empties the output directory at the start of each build.
 
 ## Structured data
 
 The homepage JSON-LD is a `WebSite` with the public name, canonical URL, description, English language, and James as the person already named on the page, including the public GitHub profile linked in the footer.
 
 Do not add a registered company, postal address, job title, review, rating, price, download count, app-store listing or search box. Do not add `SoftwareApplication` or breadcrumb schema until a real page exists and its visible content supports that type.
+
+The ECHOES introduction uses `WebPage` data with its own title, description and canonical URL, linked to the Snugzap `WebSite`. It does not advertise unsupported product ratings, store availability or offers.
 
 Valid JSON is not a rich result. Google's site-name treatment is not guaranteed by this markup.
 
@@ -79,7 +81,7 @@ The image URL in metadata is the production URL, including on previews.
 
 ## Dates and claims
 
-Do not stamp the sitemap with the build time. Omit `lastmod` until a real content-modified date exists. Do not publish patch versions, customer counts, testimonials or private QA URLs on the homepage. ECHOES links to `https://echoes.snugzap.com/` and not to a private repository.
+Do not stamp the sitemap with the build time. Omit `lastmod` until a real content-modified date exists. Do not publish patch versions, customer counts, testimonials or private QA URLs on the homepage. The homepage ECHOES card links to `/echoes/`; product-page Play ECHOES CTAs link to `https://echoes.snugzap.com/`. Never link a private repository. The development label communicates lifecycle without a fast-changing patch version.
 
 ## Boundaries
 
@@ -97,6 +99,6 @@ npm test
 npm run verify:seo
 ```
 
-`verify:seo` builds the preview, unknown and production contexts, checks the files on disk, fully decodes the social image, and requests the local preview server. It does not deploy.
+`verify:seo` builds the preview, unknown and production contexts, checks the files on disk, fully decodes the social image, and requests local preview and development servers, including nested product routes and their 404s. It does not deploy.
 
 Search Console, Bing Webmaster Tools and field Core Web Vitals are outside this check. A green local build is not indexing, a ranking, or permission to merge.
