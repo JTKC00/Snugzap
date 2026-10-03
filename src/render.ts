@@ -3,6 +3,7 @@ import {
   activeProjects,
   archivedProjects,
   featuredProjects,
+  projects,
   type Project,
   type ProjectLink,
   type ProjectStatus,
@@ -93,14 +94,35 @@ const renderProjects = (items: readonly Project[], variant: 'featured' | 'compac
 
 const sectionHref = (id: string, page: RenderedPage): string => (page === 'home' ? `#${id}` : `/#${id}`)
 
+const navigationProjects = ['echoes', 'swiftlocal', 'kcalcue', 'personal-finance-manager', 'matterdock']
+  .flatMap((slug) => projects.filter((project) => project.slug === slug))
+
+const renderNavigation = (page: RenderedPage): string => `
+  <a class="nav-echoes" href="/echoes/"${page === 'echoes' ? ' aria-current="page"' : ''}>ECHOES</a>
+  <details class="projects-menu">
+    <summary>Projects</summary>
+    <div class="projects-popup">
+      ${navigationProjects.map((project) => {
+        const link = project.links?.find((link) => link.primary)
+        if (!link) return ''
+        const attributes = link.external ? ' target="_blank" rel="noreferrer"' : ''
+        return `<a href="${escapeHtml(link.href)}"${attributes}>${escapeHtml(project.name)}${link.external ? ` ${externalArrow}` : ''}</a>`
+      }).join('')}
+      <a class="nav-all-projects" href="${sectionHref('projects', page)}">Browse all projects</a>
+    </div>
+  </details>
+  <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes ${externalArrow}</a>
+  <a href="${sectionHref('about', page)}">About</a>
+`
+
 const renderHeader = (page: RenderedPage): string => `
   <header class="site-header">
     <a class="wordmark" href="${page === 'home' ? '#top' : '/'}">Snugzap<span class="wordmark-dot" aria-hidden="true"></span></a>
-    <nav aria-label="Main navigation">
-      <a href="${sectionHref('projects', page)}">Projects</a>
-      <a href="https://james.sharing.snugzap.com/" target="_blank" rel="noreferrer">Notes ${externalArrow}</a>
-      <a href="${sectionHref('about', page)}">About</a>
-    </nav>
+    <nav class="desktop-navigation" aria-label="Main navigation">${renderNavigation(page)}</nav>
+    <details class="mobile-menu">
+      <summary>Menu</summary>
+      <nav aria-label="Main navigation">${renderNavigation(page)}</nav>
+    </details>
   </header>
 `
 

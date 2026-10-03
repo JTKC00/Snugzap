@@ -49,7 +49,8 @@ a {
   text-decoration: none;
 }
 
-a:focus-visible {
+a:focus-visible,
+summary:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 5px;
   border-radius: 2px;
@@ -83,6 +84,8 @@ a:focus-visible {
 }
 
 .site-header {
+  position: relative;
+  z-index: 3;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -134,6 +137,82 @@ nav a:hover,
 .project-link:hover,
 .text-link:hover {
   color: var(--accent-ink);
+}
+
+.projects-menu,
+.mobile-menu {
+  position: relative;
+}
+
+.site-header summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding-inline: 4px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.84rem;
+  list-style: none;
+}
+
+.site-header summary::-webkit-details-marker {
+  display: none;
+}
+
+.site-header summary::after {
+  content: "▾";
+  transition: transform 180ms ease;
+}
+
+.site-header details[open] > summary::after {
+  transform: rotate(180deg);
+}
+
+.site-header summary:hover,
+.site-header .nav-echoes {
+  color: var(--accent-ink);
+}
+
+.site-header .nav-echoes {
+  font-weight: 650;
+}
+
+.site-header .nav-echoes[aria-current="page"] {
+  text-decoration: underline;
+  text-underline-offset: 6px;
+}
+
+.projects-popup,
+.mobile-menu > nav {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 280px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: 0 12px 32px rgb(32 35 31 / 10%);
+}
+
+.projects-popup a {
+  display: flex;
+  justify-content: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.projects-popup a:hover {
+  background: var(--paper);
+}
+
+.projects-popup .nav-all-projects {
+  margin-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.mobile-menu {
+  display: none;
 }
 
 .hero {
@@ -625,6 +704,37 @@ nav a:hover,
   .site-header {
     min-height: 74px;
     padding-block: 8px;
+  }
+
+  .site-header .desktop-navigation {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .mobile-menu > nav {
+    flex-direction: column;
+    gap: 4px;
+    width: min(320px, calc(100vw - 36px));
+  }
+
+  .mobile-menu > nav > a,
+  .mobile-menu .projects-menu > summary {
+    justify-content: flex-start;
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  .mobile-menu .projects-popup {
+    position: static;
+    width: 100%;
+    margin-block: 4px;
+    padding: 0 0 0 8px;
+    border: 0;
+    border-left: 1px solid var(--line);
+    box-shadow: none;
   }
 
   .hero {

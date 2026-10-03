@@ -40,3 +40,18 @@ these checks.
   use `https://echoes.snugzap.com/`.
 
 Content and artwork provenance are recorded in `ECHOES_CONTENT.md`.
+
+## Shared navigation follow-up
+
+The shared header now has a direct ECHOES entry and a native Projects disclosure
+listing ECHOES, SwiftLocal, KcalCue, Personal Finance Manager and MatterDock in
+that order. Destinations reuse the catalogue’s approved primary links; external
+destinations retain their external indicator and new-tab attributes. Browse all
+projects keeps the homepage overview reachable from every page.
+
+At 760 px and below the header uses a native Menu disclosure, with ECHOES first.
+Both disclosures work without JavaScript. Browser checks repeated on the homepage
+and product page at all six widths with the project menu open: Enter toggled the
+appropriate disclosure, Tab reached its first ECHOES link, all five project
+destinations matched the catalogue and there was no horizontal overflow.
+Lint, typecheck, all 20 tests and the full SEO verification passed again.
