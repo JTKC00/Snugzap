@@ -1,5 +1,6 @@
 import { echoes } from './echoes.ts'
 import { swiftlocal } from './swiftlocal.ts'
+import { kcalcue } from './kcalcue.ts'
 import {
   activeProjects,
   archivedProjects,
@@ -440,15 +441,85 @@ const renderSwiftLocal = (): string => `
   ${renderFooter()}
 `
 
+const renderKcalCue = (): string => `
+  ${renderHeader('kcalcue')}
+  <main id="main-content">
+    <section class="kc-hero kc-shell" aria-labelledby="kcalcue-title">
+      <div class="kc-hero-copy">
+        <p class="kc-brand"><img src="/kcalcue/icon.svg" alt="" width="38" height="38" />A meal journal with room for uncertainty</p>
+        <h1 id="kcalcue-title">KcalCue</h1>
+        <p class="kc-tagline">A little clarity,<br>one meal at a time.</p>
+        <p class="kc-description">Start with a meal photo. Review the food suggestions, adjust the portions, and keep a daily record with calorie and nutrient ranges you can understand.</p>
+        <div class="kc-actions">
+          <a class="kc-button" href="${kcalcue.appUrl}" target="_blank" rel="noreferrer">Open KcalCue ${externalArrow}</a>
+          <a class="kc-link" href="#how-it-works">See how it works ↓</a>
+        </div>
+        <p class="kc-status">Mobile-first web app / PWA · Active validation.<br>Live photo analysis requires sign-in and trial access.</p>
+      </div>
+      <figure class="kc-visual">
+        <a href="/kcalcue/photo-input.webp" target="_blank" rel="noreferrer" aria-label="View full-size KcalCue photo input screenshot">
+          <img src="/kcalcue/photo-input.webp" alt="KcalCue’s Traditional Chinese photo input screen with a plate illustration, camera and image selection buttons, and a Demo Mode note." width="406" height="500" fetchpriority="high" />
+        </a>
+        <figcaption>Actual photo input interface · Local Demo Mode capture in Traditional Chinese.</figcaption>
+      </figure>
+    </section>
+    <section class="kc-section kc-shell" id="how-it-works" aria-labelledby="how-title">
+      <div class="kc-section-heading">
+        <div><p class="kc-eyebrow">From a photo to your record</p><h2 id="how-title">You stay in the loop.</h2></div>
+        <p>AI offers a starting point. You check what is on the plate and confirm what goes into your journal.</p>
+      </div>
+      <ol class="kc-steps">
+        ${kcalcue.steps.map((step) => `<li><h3>${escapeHtml(step.title)}</h3><p>${escapeHtml(step.description)}</p></li>`).join('')}
+      </ol>
+    </section>
+    <section class="kc-range kc-shell" id="nutrition-ranges" aria-labelledby="ranges-title">
+      <div>
+        <p class="kc-eyebrow">A range tells you more</p>
+        <h2 id="ranges-title">Room for what<br>a photo cannot tell.</h2>
+        <p>A photo cannot reveal exact weight, hidden ingredients or how much oil went into cooking. KcalCue shows ranges, confidence and uncertainty so you can judge the estimate.</p>
+      </div>
+      <ul>
+        <li>Calorie, protein, carbohydrate and fat ranges.</li>
+        <li>Food and portion corrections update the calculation without another AI analysis.</li>
+        <li>Unidentified or unmatched items remain visible as gaps in the estimate.</li>
+      </ul>
+    </section>
+    <section class="kc-section kc-shell" id="daily-journal" aria-labelledby="journal-title">
+      <div class="kc-section-heading">
+        <div><p class="kc-eyebrow">Built around the everyday</p><h2 id="journal-title">A record you can return to.</h2></div>
+        <p>Keep meal details organised, make corrections when you need to, and continue your journal across sessions.</p>
+      </div>
+      <div class="kc-features">
+        <article class="kc-feature"><h3>Today &amp; History</h3><p>Save meals by date and meal type. See your day’s nutrition ranges and revisit previous entries.</p></article>
+        <article class="kc-feature"><h3>Keep editing offline</h3><p>View downloaded records and add, edit or delete meals offline. Pending changes sync when the app is open and a connection returns. AI analysis needs a connection.</p></article>
+        <article class="kc-feature"><h3>At home on your phone</h3><p>Use it in your browser or add the PWA to your home screen where supported. The interface adapts to phones, tablets and desktops.</p></article>
+      </div>
+    </section>
+    <section class="kc-start kc-shell" id="get-started" aria-labelledby="start-title">
+      <p class="kc-eyebrow">Meet your next meal</p>
+      <h2 id="start-title">Take a look. Make it yours.</h2>
+      <p>KcalCue is in active validation. Live analysis and cloud records use a signed-in trial account. Demo Mode is clearly labelled, uses sample results and does not add them to your daily records.</p>
+      <p>Live photo analysis sends your image to an AI service. Check the app’s account and privacy information before using it.</p>
+      <div class="kc-actions">
+        <a class="kc-button" href="${kcalcue.appUrl}" target="_blank" rel="noreferrer">Open KcalCue ${externalArrow}</a>
+        <a class="kc-link" href="${kcalcue.repositoryUrl}" target="_blank" rel="noreferrer">View repository ${externalArrow}</a>
+      </div>
+      <p class="kc-reference">Nutrition estimates are for general reference and are not medical advice.</p>
+    </section>
+  </main>
+  ${renderFooter()}
+`
+
 export const renderDocument = (page: RenderedPage, context: DeployContext): string => {
   const metadata = pages.find((entry) => entry.id === page)
   const indexable = metadata?.indexable === true && isIndexableContext(context)
   const title = metadata?.title ?? `Page not found — ${site.name}`
   const description = metadata?.description ?? 'This page is not part of the Snugzap website.'
-  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : page === 'swiftlocal' ? renderSwiftLocal() : renderNotFound()
+  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : page === 'swiftlocal' ? renderSwiftLocal() : page === 'kcalcue' ? renderKcalCue() : renderNotFound()
+  const productPage = page === 'echoes' || page === 'swiftlocal' || page === 'kcalcue'
 
   return `<!doctype html>
-<html lang="${site.lang}"${page === 'echoes' || page === 'swiftlocal' ? ` class="${page}-document"` : ''}>
+<html lang="${site.lang}"${productPage ? ` class="${page}-document"` : ''}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -458,12 +529,11 @@ export const renderDocument = (page: RenderedPage, context: DeployContext): stri
     ${metadata ? `<link rel="canonical" href="${escapeHtml(canonicalUrl(metadata.path))}" />` : ''}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles.css" />
-    ${page === 'echoes' ? '<link rel="stylesheet" href="/src/echoes.css" />' : ''}
-    ${page === 'swiftlocal' ? '<link rel="stylesheet" href="/src/swiftlocal.css" />' : ''}
+    ${productPage ? `<link rel="stylesheet" href="/src/${page}.css" />` : ''}
     <meta name="theme-color" content="${escapeHtml(metadata?.themeColor ?? site.themeColor)}" />
     ${metadata ? renderSocialMeta(metadata) : ''}
   </head>
-  <body${page === 'echoes' || page === 'swiftlocal' ? ` class="theme-${page}"` : ''}>
+  <body${productPage ? ` class="theme-${page}"` : ''}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <div id="app">
       ${body}

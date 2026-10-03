@@ -19,7 +19,7 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home' | 'echoes' | 'swiftlocal'
+export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue'
 
 export type SocialImage = {
   path: string
@@ -79,6 +79,22 @@ export const pages = [
       width: 1200,
       height: 630,
       alt: 'SwiftLocal — Everyday files. One calmer workspace. A local-first Windows app for documents, images and media.',
+    },
+  },
+  {
+    id: 'kcalcue',
+    path: '/kcalcue/',
+    indexable: true,
+    title: 'KcalCue — Meal Photos, Nutrition Ranges & Daily Records | Snugzap',
+    description:
+      'Meet KcalCue, a mobile-first meal journal with AI-assisted food suggestions, calorie and macro ranges, editable portions, and Today and History records.',
+    themeColor: '#f7f4ed',
+    socialImage: {
+      path: '/kcalcue/kcalcue-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'KcalCue — A little clarity, one meal at a time. Meal photos, reviewable nutrition ranges and daily records.',
     },
   },
 ] as const satisfies readonly SitePage[]

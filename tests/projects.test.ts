@@ -88,14 +88,15 @@ describe('project catalogue', () => {
     expect(swiftLocal?.links?.[0]).toMatchObject({ label: 'Explore SwiftLocal', primary: true })
     expect(swiftLocal?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(kcalCue)).toEqual([
-      'https://kcalcue.snugzap.com/',
+      '/kcalcue/',
       'https://github.com/JTKC00/KcalCue',
     ])
     expect(kcalCue?.links?.[0]).toMatchObject({
-      label: 'Open KcalCue',
-      href: 'https://kcalcue.snugzap.com/',
+      label: 'Explore KcalCue',
+      href: '/kcalcue/',
       primary: true,
     })
+    expect(kcalCue?.links?.[0]?.external).not.toBe(true)
     expect(kcalCue?.links?.[1]).toMatchObject({
       label: 'View repository',
       href: 'https://github.com/JTKC00/KcalCue',

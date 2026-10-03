@@ -1,0 +1,27 @@
+{
+  "source_repository": "JTKC00/KcalCue",
+  "source_commit": "fae873a6658dbda74e1965a7b8fc5bb1be3eea10",
+  "assets": [
+    {
+      "source": "public/icon.svg",
+      "local": "public/kcalcue/icon.svg",
+      "local_sha256": "439cbe334680343918331790a6aac6fe49e1f4289ef7f790b7eff40f9effbda6",
+      "source_sha256": "439cbe334680343918331790a6aac6fe49e1f4289ef7f790b7eff40f9effbda6"
+    },
+    {
+      "source": "local Chromium capture of src/components/image-input.tsx in Demo Mode",
+      "local": "public/kcalcue/photo-input.webp",
+      "local_sha256": "0475bfab1a78c624d2fc05a33a8d3c193af3188f5f9c30dabc30804e4864199a",
+      "source_capture_sha256": "32b4094c9026c544ee318bbe19916b04d36091fa5cf58f2c17809e994a72e4c9",
+      "width": 406,
+      "height": 500
+    },
+    {
+      "source": "Chromium capture of the rendered Snugzap KcalCue introduction hero",
+      "local": "public/kcalcue/kcalcue-og.jpg",
+      "width": 1200,
+      "height": 630,
+      "local_sha256": "c890e5c10333d166e8126eeddf73e4ec879fcc0cd2cdb614f7f575335e2c1b2e"
+    }
+  ]
+}

@@ -4,9 +4,9 @@ This document owns how Snugzap decides what can be published, crawled and indexe
 
 ## What this site is
 
-Snugzap is the English public home for James' independent software, games and experiments. The canonical origin is `https://www.snugzap.com`. The indexable URLs are `https://www.snugzap.com/`, `https://www.snugzap.com/echoes/` and `https://www.snugzap.com/swiftlocal/`.
+Snugzap is the English public home for James' independent software, games and experiments. The canonical origin is `https://www.snugzap.com`. The indexable URLs are `https://www.snugzap.com/`, `https://www.snugzap.com/echoes/`, `https://www.snugzap.com/swiftlocal/` and `https://www.snugzap.com/kcalcue/`.
 
-ECHOES and SwiftLocal product introductions are published alongside the homepage. Future character, world or news sections, other project pages, translations, a blog, accounts and a CMS are not yet published. Do not invent those URLs.
+ECHOES, SwiftLocal and KcalCue product introductions are published alongside the homepage. Future character, world or news sections, other project pages, translations, a blog, accounts and a CMS are not yet published. Do not invent those URLs.
 
 Sibling sites stay separate. `james.sharing.snugzap.com` is Notes. Product destinations such as `https://echoes.snugzap.com/` are the products themselves, not pages of this homepage. Do not put them in this site's sitemap.
 
@@ -27,7 +27,7 @@ Until then, do not add the URL to the sitemap or to internal navigation.
 
 | Concern | Source |
 | --- | --- |
-| Visible page copy and project links | `src/render.ts`, `src/projects.ts`, `src/echoes.ts` and `src/swiftlocal.ts` |
+| Visible page copy and project links | `src/render.ts`, `src/projects.ts`, `src/echoes.ts`, `src/swiftlocal.ts` and `src/kcalcue.ts` |
 | Canonical origin, page titles, descriptions, theme colors, social images, WebSite identity | `src/site.ts` |
 | Sitemap membership | indexable pages in `src/site.ts` |
 | robots.txt and preview `X-Robots-Tag` | generated from the deploy context at build time |
@@ -55,7 +55,7 @@ Netlify may also add its own preview `noindex`. That is an extra check, not the 
 
 Netlify sets `CONTEXT` to `production`, `deploy-preview`, `branch-deploy` or `dev`. The build reads that value.
 
-- `production` renders an indexable homepage and both product pages, a sitemap of those three URLs, and a `robots.txt` sitemap line. It does not add `noindex` to the homepage and does not emit a preview `_headers` file.
+- `production` renders an indexable homepage and three product pages, a sitemap of those four URLs, and a `robots.txt` sitemap line. It does not add `noindex` to the homepage and does not emit a preview `_headers` file.
 - Every other context, including a missing or unrecognised `CONTEXT`, renders `noindex` in HTML and writes `X-Robots-Tag: noindex` to `dist/_headers`. Its `robots.txt` allows fetching and does not advertise a sitemap.
 - The safe default is `noindex`. A local `npm run build` without `CONTEXT` is therefore not the production artifact.
 - `404.html` is always `noindex`. It has no canonical URL and no WebSite or product schema. It is not in the sitemap.
@@ -81,10 +81,12 @@ The ECHOES product page uses `public/echoes/echoes-og.jpg`, a browser capture of
 its actual hero with the approved game artwork and product branding. It is also
 a fully decoded 1200 by 630 JPEG. Each page’s social descriptor and theme color
 live in the existing `src/site.ts` registry; the homepage retains its original
-image and paper theme. All three images are decoded and compared against build output
+image and paper theme. All four images are decoded and compared against build output
 by `verify:seo`, including local HTTP responses.
 
 SwiftLocal uses `public/swiftlocal/swiftlocal-og.jpg`, a fully decoded 1200 by 630 JPEG capture of its actual hero with the repository’s brand mark and interface screenshot. Its metadata also lives in the page registry.
+
+KcalCue uses `public/kcalcue/kcalcue-og.jpg`, a fully decoded 1200 by 630 JPEG capture of its actual introduction hero. The interface image is an explicitly labelled local Demo Mode capture, not proof of live AI accuracy or production access.
 
 All image URLs in metadata use the production origin, including on previews.
 
