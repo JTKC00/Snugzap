@@ -39,9 +39,8 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
-        label: 'Play web demo',
-        href: 'https://echoes.snugzap.com/',
-        external: true,
+        label: 'Explore ECHOES',
+        href: '/echoes/',
         primary: true,
       },
     ],
@@ -58,10 +57,14 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
+        label: 'Explore SwiftLocal',
+        href: '/swiftlocal/',
+        primary: true,
+      },
+      {
         label: 'Latest release',
         href: 'https://github.com/JTKC00/SwiftLocal/releases/latest',
         external: true,
-        primary: true,
       },
       {
         label: 'View repository',
@@ -82,9 +85,8 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
-        label: 'Open KcalCue',
-        href: 'https://kcalcue.snugzap.com/',
-        external: true,
+        label: 'Explore KcalCue',
+        href: '/kcalcue/',
         primary: true,
       },
       {
@@ -105,10 +107,14 @@ export const projects: readonly Project[] = [
     tags: ['Windows', 'Local-first', 'Matter tracking'],
     links: [
       {
+        label: 'Explore MatterDock',
+        href: '/matterdock/',
+        primary: true,
+      },
+      {
         label: 'View repository',
         href: 'https://github.com/JTKC00/MatterDock',
         external: true,
-        primary: true,
       },
     ],
   },
@@ -123,10 +129,14 @@ export const projects: readonly Project[] = [
     tags: ['Personal finance', 'Firebase', 'Receipt OCR'],
     links: [
       {
+        label: 'Explore Personal Finance Manager',
+        href: '/personal-finance-manager/',
+        primary: true,
+      },
+      {
         label: 'View repository',
         href: 'https://github.com/JTKC00/Personal-Finance-Manager',
         external: true,
-        primary: true,
       },
     ],
   },

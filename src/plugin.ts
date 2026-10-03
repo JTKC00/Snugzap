@@ -3,12 +3,27 @@ import type { ServerResponse } from 'node:http'
 import path from 'node:path'
 import type { Connect, Plugin, PreviewServer } from 'vite'
 import { renderDocument, renderRobots, renderRobotsHeader, renderSitemap, type RenderedPage } from './render.ts'
-import { resolveDeployContext, type DeployContext } from './site.ts'
+import { pageEntry, pages, resolveDeployContext, type DeployContext } from './site.ts'
 
 const currentContext = (): DeployContext => resolveDeployContext(process.env.CONTEXT)
 
-const pageFromFilename = (filename: string): RenderedPage =>
-  filename.endsWith(`${path.sep}404.html`) || filename.endsWith('/404.html') ? 'not-found' : 'home'
+export const pageFromFilename = (filename: string, root: string): RenderedPage => {
+  const relative = path.relative(root, filename).split(path.sep).join('/')
+  return pages.find((page) => pageEntry(page) === relative)?.id ?? 'not-found'
+}
+
+const isPagePath = (url: string): boolean =>
+  pages.some((page) => url === page.path || url === `/${pageEntry(page)}`)
+
+const redirectPage = (request: Connect.IncomingMessage, response: ServerResponse): boolean => {
+  const url = pathname(request)
+  const page = pages.find((page) => page.path !== '/' && url === page.path.slice(0, -1))
+  if (!page) return false
+  response.statusCode = 308
+  response.setHeader('Location', `${page.path}${(request.url ?? '').slice(url.length)}`)
+  response.end()
+  return true
+}
 
 const send = (response: ServerResponse, status: number, type: string, body: string): void => {
   response.statusCode = status
@@ -66,8 +81,7 @@ const devNotFound: Connect.NextHandleFunction = (request, response, next) => {
   }
 
   const isAsset =
-    url === '/' ||
-    url === '/index.html' ||
+    isPagePath(url) ||
     url.startsWith('/@') ||
     url.startsWith('/__vite') ||
     url.startsWith('/src/') ||
@@ -93,7 +107,7 @@ const previewNotFound =
 
     const url = pathname(request)
 
-    if (url === '/' || url === '/index.html') {
+    if (isPagePath(url)) {
       next()
       return
     }
@@ -125,46 +139,58 @@ const previewNotFound =
     send(response, 404, 'text/html; charset=utf-8', readFileSync(notFound, 'utf8'))
   }
 
-export const snugzapSitePlugin = (): Plugin => ({
-  name: 'snugzap-static-site',
-  config() {
-    return {
-      appType: 'mpa',
-      build: {
-        emptyOutDir: true,
-      },
-    }
-  },
-  transformIndexHtml: {
-    order: 'pre',
-    handler(_html, ctx) {
-      return renderDocument(pageFromFilename(ctx.filename), currentContext())
+export const snugzapSitePlugin = (): Plugin => {
+  let root = process.cwd()
+  return {
+    name: 'snugzap-static-site',
+    configResolved(config) {
+      root = config.root
     },
-  },
-  generateBundle() {
-    const context = currentContext()
-    this.emitFile({ type: 'asset', fileName: 'robots.txt', source: renderRobots(context) })
-    this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: renderSitemap() })
+    config() {
+      return {
+        appType: 'mpa',
+        build: {
+          emptyOutDir: true,
+        },
+      }
+    },
+    transformIndexHtml: {
+      order: 'pre',
+      handler(_html, ctx) {
+        return renderDocument(pageFromFilename(ctx.filename, root), currentContext())
+      },
+    },
+    generateBundle() {
+      const context = currentContext()
+      this.emitFile({ type: 'asset', fileName: 'robots.txt', source: renderRobots(context) })
+      this.emitFile({ type: 'asset', fileName: 'sitemap.xml', source: renderSitemap() })
 
-    const headers = renderRobotsHeader(context)
+      const headers = renderRobotsHeader(context)
 
-    if (headers) {
-      this.emitFile({ type: 'asset', fileName: '_headers', source: headers })
-    }
-  },
-  configureServer(server) {
-    return () => {
-      server.middlewares.use(devNotFound)
-    }
-  },
-  configurePreviewServer(server) {
-    server.middlewares.use((_request, response, next) => {
-      applyBuiltRobotsHeader(response, outputDir(server.config.root, server.config.build.outDir))
-      next()
-    })
+      if (headers) {
+        this.emitFile({ type: 'asset', fileName: '_headers', source: headers })
+      }
+    },
+    configureServer(server) {
+      server.middlewares.use((request, response, next) => {
+        applyRobotsHeader(response, currentContext())
+        if (redirectPage(request, response)) return
+        next()
+      })
+      return () => {
+        server.middlewares.use(devNotFound)
+      }
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use((request, response, next) => {
+        applyBuiltRobotsHeader(response, outputDir(server.config.root, server.config.build.outDir))
+        if (redirectPage(request, response)) return
+        next()
+      })
 
-    return () => {
-      server.middlewares.use(previewNotFound(server))
-    }
-  },
-})
+      return () => {
+        server.middlewares.use(previewNotFound(server))
+      }
+    },
+  }
+}

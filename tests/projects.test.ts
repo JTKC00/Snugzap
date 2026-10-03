@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { activeProjects, archivedProjects, featuredProjects, projects, type Project } from '../src/projects.ts'
+import { canonicalUrl, pages } from '../src/site.ts'
 
 const names = (items: readonly Pick<Project, 'name'>[]): string[] => items.map((project) => project.name)
 
@@ -48,16 +49,19 @@ describe('project catalogue', () => {
     expect(slugs.every((slug) => slug.length > 0)).toBe(true)
   })
 
-  it('publishes only safe https destinations', () => {
+  it('publishes only registered internal pages or safe https destinations', () => {
     const hrefs = projects.flatMap((project) => linksOf(project))
 
     expect(hrefs.length).toBeGreaterThan(0)
 
     for (const href of hrefs) {
-      const url = new URL(href)
+      if (href.startsWith('/')) {
+        expect(pages.some((page) => page.path === href)).toBe(true)
+      }
+      const url = new URL(href, canonicalUrl('/'))
 
       expect(url.protocol).toBe('https:')
-      expect(href.startsWith('https://')).toBe(true)
+      expect(href.startsWith('/') || href.startsWith('https://')).toBe(true)
       expect(href.toLowerCase()).not.toContain('localhost')
       expect(href.toLowerCase()).not.toContain('.run.app')
       expect(href.toLowerCase()).not.toMatch(/netlify\.app|vercel\.app|pages\.dev|deploy-preview|amplifyapp\.com/)
@@ -73,27 +77,37 @@ describe('project catalogue', () => {
     const finance = projects.find((project) => project.slug === 'personal-finance-manager')
     const bookstore = projects.find((project) => project.slug === 'bookstore')
 
-    expect(linksOf(echoes)).toEqual(['https://echoes.snugzap.com/'])
+    expect(linksOf(echoes)).toEqual(['/echoes/'])
+    expect(echoes?.links?.[0]).toMatchObject({ label: 'Explore ECHOES', primary: true })
+    expect(echoes?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(swiftLocal)).toEqual([
+      '/swiftlocal/',
       'https://github.com/JTKC00/SwiftLocal/releases/latest',
       'https://github.com/JTKC00/SwiftLocal',
     ])
+    expect(swiftLocal?.links?.[0]).toMatchObject({ label: 'Explore SwiftLocal', primary: true })
+    expect(swiftLocal?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(kcalCue)).toEqual([
-      'https://kcalcue.snugzap.com/',
+      '/kcalcue/',
       'https://github.com/JTKC00/KcalCue',
     ])
     expect(kcalCue?.links?.[0]).toMatchObject({
-      label: 'Open KcalCue',
-      href: 'https://kcalcue.snugzap.com/',
+      label: 'Explore KcalCue',
+      href: '/kcalcue/',
       primary: true,
     })
+    expect(kcalCue?.links?.[0]?.external).not.toBe(true)
     expect(kcalCue?.links?.[1]).toMatchObject({
       label: 'View repository',
       href: 'https://github.com/JTKC00/KcalCue',
     })
     expect(kcalCue?.links?.[1]?.primary).not.toBe(true)
-    expect(linksOf(matterDock)).toEqual(['https://github.com/JTKC00/MatterDock'])
-    expect(linksOf(finance)).toEqual(['https://github.com/JTKC00/Personal-Finance-Manager'])
+    expect(linksOf(matterDock)).toEqual(['/matterdock/', 'https://github.com/JTKC00/MatterDock'])
+    expect(matterDock?.links?.[0]).toMatchObject({ label: 'Explore MatterDock', primary: true })
+    expect(matterDock?.links?.[0]?.external).not.toBe(true)
+    expect(linksOf(finance)).toEqual(['/personal-finance-manager/', 'https://github.com/JTKC00/Personal-Finance-Manager'])
+    expect(finance?.links?.[0]).toMatchObject({ label: 'Explore Personal Finance Manager', primary: true })
+    expect(finance?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(bookstore)).toEqual(['https://github.com/JTKC00/bookstore_2.0'])
     expect(linksOf(echoes).some((href) => href.includes('github.com/JTKC00/ECHOES'))).toBe(false)
   })
@@ -104,7 +118,7 @@ describe('project catalogue', () => {
     for (const project of projects) {
       expect(patchVersion.test(project.status)).toBe(false)
       expect(patchVersion.test(project.summary)).toBe(false)
-      expect(project.links?.every((link) => link.external === true)).toBe(true)
+      expect(project.links?.every((link) => link.external === true || link.href.startsWith('/'))).toBe(true)
     }
 
     expect(projects.find((project) => project.slug === 'kcalcue')).toMatchObject({

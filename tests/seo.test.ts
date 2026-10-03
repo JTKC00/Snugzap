@@ -21,6 +21,12 @@ describe('static homepage', () => {
   it('contains the full catalogue before any client script runs', () => {
     expect(home).not.toContain('src/main.ts')
     expect(home).toContain('href="/src/styles.css"')
+    expect(home).not.toContain('href="/src/echoes.css"')
+    expect(home).not.toContain('href="/src/swiftlocal.css"')
+    expect(home).not.toContain('href="/src/kcalcue.css"')
+    expect(home).not.toContain('href="/src/personal-finance-manager.css"')
+    expect(home).not.toContain('href="/src/matterdock.css"')
+    expect(home).not.toContain('class="theme-echoes"')
     expect(home).toContain('<h1 id="hero-title">')
     expect(home.match(/<h1\b/g)).toHaveLength(1)
     expect(home).toContain('Skip to content')
@@ -40,12 +46,14 @@ describe('static homepage', () => {
       }
     }
 
-    expect(home).toContain('https://echoes.snugzap.com/')
+    expect(home).toContain('href="/echoes/"')
+    expect(home).not.toContain('href="https://echoes.snugzap.com/"')
     expect(home).not.toContain('https://jtkc00.github.io/ECHOES/')
     expect(home).not.toContain('github.com/JTKC00/ECHOES')
     expect(home.toLowerCase()).not.toContain('localhost')
     expect(home).not.toContain('.run.app')
-    expect(home).toContain('https://kcalcue.snugzap.com/')
+    expect(home).toContain('href="/kcalcue/"')
+    expect(home).not.toContain('https://kcalcue.snugzap.com/')
   })
 
   it('keeps one production metadata source for canonical, social and structured data', () => {
@@ -115,10 +123,12 @@ describe('indexability contexts', () => {
     expect(resolveDeployContext('qa')).toBe('unknown')
 
     for (const context of ['deploy-preview', 'branch-deploy', 'dev', 'unknown'] as const) {
-      const html = renderDocument('home', context)
-      expect(html).toContain('<meta name="robots" content="noindex" />')
-      expect(html).toContain(`rel="canonical" href="${canonicalUrl('/')}"`)
-      expect(html).not.toContain('netlify.app')
+      for (const page of indexablePages) {
+        const html = renderDocument(page.id, context)
+        expect(html).toContain('<meta name="robots" content="noindex" />')
+        expect(html).toContain(`rel="canonical" href="${canonicalUrl(page.path)}"`)
+        expect(html).not.toContain('netlify.app')
+      }
       expect(renderRobots(context)).not.toContain('Disallow')
       expect(renderRobots(context)).not.toContain('Sitemap:')
       expect(renderRobotsHeader(context)).toContain('X-Robots-Tag: noindex')
@@ -130,13 +140,18 @@ describe('indexability contexts', () => {
     expect(renderRobotsHeader('production')).toBeNull()
   })
 
-  it('publishes only the homepage in the sitemap and keeps the 404 out', () => {
-    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/'])
+  it('publishes the homepage and five product pages in the sitemap and keeps the 404 out', () => {
+    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/', 'https://www.snugzap.com/swiftlocal/', 'https://www.snugzap.com/kcalcue/', 'https://www.snugzap.com/personal-finance-manager/', 'https://www.snugzap.com/matterdock/'])
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/echoes/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/swiftlocal/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/kcalcue/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/personal-finance-manager/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/matterdock/</loc>')
     expect(renderSitemap()).not.toContain('lastmod')
     expect(renderSitemap()).not.toContain('echoes.snugzap.com')
     expect(renderSitemap()).not.toContain('404')
-    expect(renderSitemap().match(/<loc>/g)).toHaveLength(1)
+    expect(renderSitemap().match(/<loc>/g)).toHaveLength(6)
 
     expect(missing).toContain('<meta name="robots" content="noindex" />')
     expect(missing).toContain('This page is not here.')

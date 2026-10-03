@@ -1,0 +1,21 @@
+{
+  "source_repository": "JTKC00/Personal-Finance-Manager",
+  "source_commit": "97ef865267ef06a1a652923ce0a87e2da54e9619",
+  "assets": [
+    {
+      "source": "public/brand/pfm-icon-512.png",
+      "local": "public/personal-finance-manager/icon.png",
+      "source_sha256": "c7fa7086066ead11c201393e1faefa3a0d83995d3901f62911daa89635edc02b",
+      "local_sha256": "c7fa7086066ead11c201393e1faefa3a0d83995d3901f62911daa89635edc02b",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "source": "Chromium capture of the rendered Personal Finance Manager introduction hero",
+      "local": "public/personal-finance-manager/finance-og.jpg",
+      "width": 1200,
+      "height": 630,
+      "local_sha256": "0c3e2c007d9bc04685f58e71cb85fdf65e5f1cd876b83a5d44417f9bc4191956"
+    }
+  ]
+}

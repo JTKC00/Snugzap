@@ -1,0 +1,20 @@
+{
+  "source_repository": "JTKC00/SwiftLocal",
+  "source_commit": "c98b27fd01eac54710e291db205039e7ed41190d",
+  "assets": [
+    {
+      "source": "docs/design/home-1280-light.png",
+      "source_sha256": "5091e6b6fcf8230f86d70f1efbf08ac189d2cfeac5f425b8376ec3ca037a2394",
+      "local": "public/swiftlocal/workspace.webp",
+      "local_sha256": "64d5ee05bd4d27987b739f861d41d7b15d817ab180f2be481acc378e47a68ffd",
+      "width": 1265,
+      "height": 791
+    },
+    {
+      "source": "frontend/assets/brand/mark.svg",
+      "source_sha256": "346c696c7701829e0eeaeac59428d199e44c57d60ce7439c08c57c9b329ebc76",
+      "local": "public/swiftlocal/mark.svg",
+      "local_sha256": "346c696c7701829e0eeaeac59428d199e44c57d60ce7439c08c57c9b329ebc76"
+    }
+  ]
+}

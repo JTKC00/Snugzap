@@ -19,14 +19,24 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home'
+export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue' | 'personal-finance-manager' | 'matterdock'
+
+export type SocialImage = {
+  path: string
+  mimeType: string
+  width: number
+  height: number
+  alt: string
+}
 
 export type SitePage = {
   id: PageId
-  path: '/'
+  path: '/' | `/${string}/`
   indexable: true
   title: string
   description: string
+  themeColor: string
+  socialImage: SocialImage
 }
 
 export const pages = [
@@ -36,8 +46,92 @@ export const pages = [
     indexable: true,
     title: site.title,
     description: site.description,
+    themeColor: site.themeColor,
+    socialImage: site.socialImage,
+  },
+  {
+    id: 'echoes',
+    path: '/echoes/',
+    indexable: true,
+    title: 'ECHOES — Story-driven Turn-based RPG | Snugzap',
+    description:
+      'Enter Ashenveil as a Resonator in ECHOES, a story-driven turn-based RPG. Meet its characters, explore tactical battles and play the Chapter 1 web demo.',
+    themeColor: '#080e18',
+    socialImage: {
+      path: '/echoes/echoes-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'ECHOES — A fractured world. Stories that resonate. Arlo, Cillian and Luca against a frost-lit world.',
+    },
+  },
+  {
+    id: 'swiftlocal',
+    path: '/swiftlocal/',
+    indexable: true,
+    title: 'SwiftLocal — Local-first Windows File Workspace | Snugzap',
+    description:
+      'Meet SwiftLocal, a local-first Windows workspace for PDF, OCR, Office, image and media tasks. Explore the tools and download the full Windows x64 installer.',
+    themeColor: '#f5f7f4',
+    socialImage: {
+      path: '/swiftlocal/swiftlocal-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'SwiftLocal — Everyday files. One calmer workspace. A local-first Windows app for documents, images and media.',
+    },
+  },
+  {
+    id: 'kcalcue',
+    path: '/kcalcue/',
+    indexable: true,
+    title: 'KcalCue — Meal Photos, Nutrition Ranges & Daily Records | Snugzap',
+    description:
+      'Meet KcalCue, a mobile-first meal journal with AI-assisted food suggestions, calorie and macro ranges, editable portions, and Today and History records.',
+    themeColor: '#f7f4ed',
+    socialImage: {
+      path: '/kcalcue/kcalcue-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'KcalCue — A little clarity, one meal at a time. Meal photos, reviewable nutrition ranges and daily records.',
+    },
+  },
+  {
+    id: 'personal-finance-manager',
+    path: '/personal-finance-manager/',
+    indexable: true,
+    title: 'Personal Finance Manager — Transactions, Budgets & Savings | Snugzap',
+    description:
+      'Explore Personal Finance Manager, a web app for income and expenses, HKD category budgets, spending analysis, savings goals, subscriptions and receipt OCR.',
+    themeColor: '#f5f5f7',
+    socialImage: {
+      path: '/personal-finance-manager/finance-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'Personal Finance Manager — A clear place for everyday money. Transactions, budgets, savings and recurring costs.',
+    },
+  },
+  {
+    id: 'matterdock',
+    path: '/matterdock/',
+    indexable: true,
+    title: 'MatterDock — Local-first Matters, Follow-ups & Documents | Snugzap',
+    description:
+      'Explore MatterDock, a local-first Windows workspace for ongoing matters, timelines, actions, waiting items, contacts and documents, with context export and backups.',
+    themeColor: '#f3f1ea',
+    socialImage: {
+      path: '/matterdock/matterdock-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'MatterDock — Keep every matter on track. History, people, documents and one clear next action.',
+    },
   },
 ] as const satisfies readonly SitePage[]
+
+export const pageEntry = (page: SitePage): string => `${page.path.slice(1)}index.html`
 
 export const indexablePages = pages.filter((page) => page.indexable)
 
