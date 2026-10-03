@@ -122,6 +122,26 @@ const assertProductFiles = (expectNoindex) => {
   }
 }
 
+const assertSwiftLocalHtml = (html, expectNoindex) => {
+  assert((html.match(/<h1\b/g) ?? []).length === 1 && html.includes('<h1 id="swiftlocal-title">SwiftLocal</h1>'), 'SwiftLocal product H1 is incorrect')
+  assert(html.includes('rel="canonical" href="https://www.snugzap.com/swiftlocal/"'), 'SwiftLocal canonical is incorrect')
+  assert(html.includes('og:url" content="https://www.snugzap.com/swiftlocal/"'), 'SwiftLocal social URL is incorrect')
+  assert(html.includes('og:image" content="https://www.snugzap.com/swiftlocal/swiftlocal-og.jpg"'), 'SwiftLocal social image is incorrect')
+  assert(html.includes('"@type":"WebPage"'), 'SwiftLocal structured data is missing')
+  assert(html.includes('Windows x64 is the officially supported platform'), 'SwiftLocal platform guidance is missing')
+  assert(html.includes('href="https://github.com/JTKC00/SwiftLocal/releases/latest"'), 'SwiftLocal official download is missing')
+  assert(html.includes('name="robots" content="noindex"') === expectNoindex, 'SwiftLocal indexability is incorrect')
+}
+
+const assertSwiftLocalFiles = (expectNoindex) => {
+  const html = read('swiftlocal/index.html')
+  assertSwiftLocalHtml(html, expectNoindex)
+  assert(html.includes('href="/assets/') && !html.includes('/src/'), 'SwiftLocal CSS is not built')
+  for (const name of ['workspace.webp', 'mark.svg', 'swiftlocal-og.jpg']) {
+    assert(readFileSync(path.join(root, 'public', 'swiftlocal', name)).equals(readFileSync(path.join(dist, 'swiftlocal', name))), `SwiftLocal built ${name} differs from source`)
+  }
+}
+
 const assertPreviewFiles = () => {
   const html = read('index.html')
   const missing = read('404.html')
@@ -132,6 +152,7 @@ const assertPreviewFiles = () => {
   assert(!html.includes('netlify.app'), 'preview HTML promotes a preview host')
   assert(html.includes('href="/echoes/"'), 'preview homepage lost the ECHOES product link')
   assertProductFiles(true)
+  assertSwiftLocalFiles(true)
   assert(html.includes('https://kcalcue.snugzap.com/'), 'preview HTML lost the KcalCue production URL')
   assert(missing.includes('name="robots" content="noindex"'), 'preview 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'preview 404 has a canonical')
@@ -155,6 +176,7 @@ const assertProductionFiles = () => {
   assert(!html.includes('/src/main.ts'), 'production HTML still depends on the old client renderer')
   assert(html.includes('href="/echoes/"'), 'production homepage lost the ECHOES product link')
   assertProductFiles(false)
+  assertSwiftLocalFiles(false)
   assert(html.includes('https://kcalcue.snugzap.com/'), 'production HTML lost the KcalCue production URL')
   for (const name of ['ECHOES', 'SwiftLocal', 'KcalCue', 'MatterDock', 'Personal Finance Manager', 'Bookstore']) {
     assert(html.includes(name), `production HTML is missing ${name}`)
@@ -167,7 +189,8 @@ const assertProductionFiles = () => {
   assert(sitemap.includes('<loc>https://www.snugzap.com/</loc>'), 'production sitemap is missing the homepage')
   assert(!sitemap.includes('lastmod'), 'production sitemap fabricates lastmod')
   assert(sitemap.includes('<loc>https://www.snugzap.com/echoes/</loc>'), 'production sitemap is missing ECHOES')
-  assert((sitemap.match(/<loc>/g) ?? []).length === 2, 'production sitemap must contain exactly the two published pages')
+  assert((sitemap.match(/<loc>/g) ?? []).length === 3, 'production sitemap must contain exactly the three published pages')
+  assert(sitemap.includes('<loc>https://www.snugzap.com/swiftlocal/</loc>'), 'production sitemap is missing SwiftLocal')
   assert(!sitemap.includes('404'), 'production sitemap includes the 404')
   assert(missing.includes('name="robots" content="noindex"'), 'production 404 is missing noindex')
   assert(!missing.includes('rel="canonical"'), 'production 404 uses a homepage canonical')
@@ -181,6 +204,9 @@ const assertProductionFiles = () => {
   const echoesSource = decodeJpeg(path.join(root, 'public', 'echoes', 'echoes-og.jpg'), 'ECHOES source social image')
   const echoesBuilt = decodeJpeg(path.join(dist, 'echoes', 'echoes-og.jpg'), 'ECHOES built social image')
   assert(echoesSource.equals(echoesBuilt), 'ECHOES built social image bytes differ from source')
+  const swiftSource = decodeJpeg(path.join(root, 'public', 'swiftlocal', 'swiftlocal-og.jpg'), 'SwiftLocal source social image')
+  const swiftBuilt = decodeJpeg(path.join(dist, 'swiftlocal', 'swiftlocal-og.jpg'), 'SwiftLocal built social image')
+  assert(swiftSource.equals(swiftBuilt), 'SwiftLocal social image differs from source')
   console.log('PASS production build files')
 }
 
@@ -188,6 +214,7 @@ const assertHttp = async (expectNoindex) => {
   const homeResponse = await fetch('http://127.0.0.1:4173/')
   const homeHtml = await homeResponse.text()
   assert(homeResponse.status === 200, `homepage status ${homeResponse.status}`)
+  assert(homeHtml.includes('href="/swiftlocal/"'), 'served homepage lost the SwiftLocal product link')
   assert(homeHtml.includes('href="/echoes/"'), 'served homepage lost the ECHOES product link')
   assert(homeHtml.includes('https://kcalcue.snugzap.com/'), 'served homepage lost the KcalCue URL')
   const robots = homeResponse.headers.get('x-robots-tag')
@@ -206,10 +233,18 @@ const assertHttp = async (expectNoindex) => {
     assertProductHtml(html, expectNoindex)
     assert(response.headers.get('x-robots-tag') === (expectNoindex ? 'noindex' : null), `${url} incorrect robots header`)
   }
+  for (const url of ['/swiftlocal/', '/swiftlocal/?from=home', '/swiftlocal/index.html']) {
+    const response = await fetch(`http://127.0.0.1:4173${url}`)
+    assert(response.status === 200, `${url} status ${response.status}`)
+    assertSwiftLocalHtml(await response.text(), expectNoindex)
+    assert(response.headers.get('x-robots-tag') === (expectNoindex ? 'noindex' : null), `${url} incorrect robots header`)
+  }
+  const swiftRedirect = await fetch('http://127.0.0.1:4173/swiftlocal?from=home', { redirect: 'manual' })
+  assert(swiftRedirect.status === 308 && swiftRedirect.headers.get('location') === '/swiftlocal/?from=home', 'SwiftLocal redirect lost path or query')
   const redirect = await fetch('http://127.0.0.1:4173/echoes?from=home', { redirect: 'manual' })
   assert(redirect.status === 308, `/echoes status ${redirect.status}`)
   assert(redirect.headers.get('location') === '/echoes/?from=home', '/echoes redirect lost path or query')
-  for (const url of ['/echoes/characters/', '/echoes/world/', '/echoes/news/', '/echoes/missing']) {
+  for (const url of ['/echoes/characters/', '/echoes/world/', '/echoes/news/', '/echoes/missing', '/swiftlocal/missing/']) {
     const response = await fetch(`http://127.0.0.1:4173${url}`)
     const html = await response.text()
     assert(response.status === 404, `${url} must remain 404`)
@@ -223,7 +258,7 @@ const assertHttp = async (expectNoindex) => {
   assert(missingHtml.includes('noindex'), '404 response is missing noindex')
   assert(!missingHtml.includes('rel="canonical"'), '404 response has a canonical')
 
-  for (const imagePath of ['/snugzap-og.jpg', '/echoes/echoes-og.jpg']) {
+  for (const imagePath of ['/snugzap-og.jpg', '/echoes/echoes-og.jpg', '/swiftlocal/swiftlocal-og.jpg']) {
     const imageResponse = await fetch(`http://127.0.0.1:4173${imagePath}`)
     const imageType = imageResponse.headers.get('content-type') ?? ''
     assert(imageResponse.status === 200, `social image status ${imageResponse.status}`)
@@ -260,6 +295,7 @@ const main = async () => {
   await build('not-a-netlify-context')
   assert(read('index.html').includes('noindex'), 'unknown context did not default to noindex')
   assertProductFiles(true)
+  assertSwiftLocalFiles(true)
   assert(read('_headers').includes('X-Robots-Tag: noindex'), 'unknown context did not emit noindex headers')
   console.log('PASS unknown context defaults to noindex')
 

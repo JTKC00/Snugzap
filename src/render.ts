@@ -1,4 +1,5 @@
 import { echoes } from './echoes.ts'
+import { swiftlocal } from './swiftlocal.ts'
 import {
   activeProjects,
   archivedProjects,
@@ -105,7 +106,8 @@ const renderNavigation = (page: RenderedPage): string => `
         const link = project.links?.find((link) => link.primary)
         if (!link) return ''
         const attributes = link.external ? ' target="_blank" rel="noreferrer"' : ''
-        return `<a href="${escapeHtml(link.href)}"${attributes}>${escapeHtml(project.name)}${link.external ? ` ${externalArrow}` : ''}</a>`
+        const current = pages.some((entry) => entry.id === page && entry.path === link.href)
+        return `<a href="${escapeHtml(link.href)}"${attributes}${current ? ' aria-current="page"' : ''}>${escapeHtml(project.name)}${link.external ? ` ${externalArrow}` : ''}</a>`
       }).join('')}
       <a class="nav-all-projects" href="${sectionHref('projects', page)}">Browse all projects</a>
     </div>
@@ -360,15 +362,93 @@ const renderSocialMeta = (page: SitePage): string => {
     <script type="application/ld+json">${serializeJsonLd(jsonLd)}</script>`
 }
 
+const renderSwiftLocal = (): string => `
+  ${renderHeader('swiftlocal')}
+  <main id="main-content">
+    <section class="sl-hero sl-shell" aria-labelledby="swiftlocal-title">
+      <div class="sl-hero-copy">
+        <p class="sl-brand"><img src="/swiftlocal/mark.svg" alt="" width="25" height="32" /><span lang="zh-Hant">快轉通</span> / Your local workspace</p>
+        <h1 id="swiftlocal-title">SwiftLocal</h1>
+        <p class="sl-tagline">Everyday files.<br>One calmer workspace.</p>
+        <p class="sl-description">PDFs, scanned documents, Office files, images and media. Bring everyday file tasks together in a desktop workspace built around local processing.</p>
+        <div class="sl-actions">
+          <a class="sl-button" href="${swiftlocal.downloadUrl}" target="_blank" rel="noreferrer">Download for Windows ${externalArrow}</a>
+          <a class="sl-text-link" href="#workspaces">Explore the tools ↓</a>
+        </div>
+        <p class="sl-platform">Windows x64 · Active development<br>Full installer with common processing engines included.</p>
+      </div>
+      <figure class="sl-preview">
+        <a href="/swiftlocal/workspace.webp" target="_blank" rel="noreferrer" aria-label="View full-size SwiftLocal interface screenshot">
+          <img src="/swiftlocal/workspace.webp" alt="SwiftLocal’s Traditional Chinese home screen with PDF, OCR, Office, image and media shortcuts, saved preferences and a task centre." width="1265" height="791" fetchpriority="high" />
+        </a>
+        <figcaption>SwiftLocal interface · Traditional Chinese view. Select the image to see it full size.</figcaption>
+      </figure>
+    </section>
+    <div class="sl-strip sl-shell" aria-label="Product highlights">
+      <span>Local-first processing</span><span>Five core workspaces</span><span>Batch tasks &amp; saved preferences</span>
+    </div>
+    <section class="sl-section sl-shell" id="workspaces" aria-labelledby="workspaces-title">
+      <div class="sl-section-heading">
+        <div><p class="sl-eyebrow">A place for every file</p><h2 id="workspaces-title">Less switching.<br>More getting things done.</h2></div>
+        <p>From a single scanned page to a folder of images, choose a task and keep your work in one place.</p>
+      </div>
+      <div class="sl-workspaces">
+        ${swiftlocal.workspaces.map((workspace, index) => `
+          <article class="sl-workspace">
+            <p class="sl-workspace-label">${escapeHtml(workspace.name)} <span aria-hidden="true">0${index + 1}</span></p>
+            <h3>${escapeHtml(workspace.headline)}</h3>
+            <p>${escapeHtml(workspace.description)}</p>
+            <p class="sl-formats">${escapeHtml(workspace.formats)}</p>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+    <section class="sl-local sl-shell" id="local-first" aria-labelledby="local-title">
+      <div>
+        <p class="sl-eyebrow">Your files, close to home</p>
+        <h2 id="local-title">Local processing.<br>A simpler routine.</h2>
+        <p>Ordinary PDF, OCR, Office, image and media conversions run on your device without uploading your documents to a SwiftLocal cloud service. Online media URL features need an internet connection.</p>
+      </div>
+      <ul>
+        <li>Common processing engines come with the full installer.</li>
+        <li>Follow progress, cancel or retry work in the shared task centre.</li>
+        <li>Save frequently used settings and reuse workflows for repeat jobs.</li>
+      </ul>
+    </section>
+    <section class="sl-download sl-shell" id="download" aria-labelledby="download-title">
+      <div class="sl-download-copy">
+        <p class="sl-eyebrow">Start with Windows</p>
+        <h2 id="download-title">Ready for the next file?</h2>
+        <p>Windows x64 is the officially supported platform. Download the full installer from GitHub Releases to get the app and its common local engines together.</p>
+        <div class="sl-actions">
+          <a class="sl-button" href="${swiftlocal.downloadUrl}" target="_blank" rel="noreferrer">Download for Windows ${externalArrow}</a>
+          <a class="sl-text-link" href="${swiftlocal.repositoryUrl}" target="_blank" rel="noreferrer">View repository ${externalArrow}</a>
+        </div>
+        <details class="sl-install-note">
+          <summary>Before you install</summary>
+          <p>Choose the Windows x64 full installer on the release page. The current installer is unsigned, so Windows may show an unknown publisher or SmartScreen prompt. Release files and SHA256SUMS.txt are published together on GitHub.</p>
+          <p>macOS is experimental and Linux is not officially supported. PDF-to-Word layout preservation is best-effort and may need manual adjustments.</p>
+        </details>
+      </div>
+      <ol class="sl-steps" aria-label="Getting started">
+        <li><h3>Download &amp; install</h3><p>Get the full Windows installer from the official release page.</p></li>
+        <li><h3>Choose your task</h3><p>Open a workspace, add your files and set the output options.</p></li>
+        <li><h3>Keep things moving</h3><p>Start processing, follow the task progress and find your finished files.</p></li>
+      </ol>
+    </section>
+  </main>
+  ${renderFooter()}
+`
+
 export const renderDocument = (page: RenderedPage, context: DeployContext): string => {
   const metadata = pages.find((entry) => entry.id === page)
   const indexable = metadata?.indexable === true && isIndexableContext(context)
   const title = metadata?.title ?? `Page not found — ${site.name}`
   const description = metadata?.description ?? 'This page is not part of the Snugzap website.'
-  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : renderNotFound()
+  const body = page === 'home' ? renderHome() : page === 'echoes' ? renderEchoes() : page === 'swiftlocal' ? renderSwiftLocal() : renderNotFound()
 
   return `<!doctype html>
-<html lang="${site.lang}"${page === 'echoes' ? ' class="echoes-document"' : ''}>
+<html lang="${site.lang}"${page === 'echoes' || page === 'swiftlocal' ? ` class="${page}-document"` : ''}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -379,10 +459,11 @@ export const renderDocument = (page: RenderedPage, context: DeployContext): stri
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/src/styles.css" />
     ${page === 'echoes' ? '<link rel="stylesheet" href="/src/echoes.css" />' : ''}
+    ${page === 'swiftlocal' ? '<link rel="stylesheet" href="/src/swiftlocal.css" />' : ''}
     <meta name="theme-color" content="${escapeHtml(metadata?.themeColor ?? site.themeColor)}" />
     ${metadata ? renderSocialMeta(metadata) : ''}
   </head>
-  <body${page === 'echoes' ? ' class="theme-echoes"' : ''}>
+  <body${page === 'echoes' || page === 'swiftlocal' ? ` class="theme-${page}"` : ''}>
     <a class="skip-link" href="#main-content">Skip to content</a>
     <div id="app">
       ${body}

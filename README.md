@@ -11,13 +11,15 @@ It gathers practical software, thoughtful tools, playable worlds and preserved e
 - Vitest for catalogue and SEO checks
 - Netlify static hosting
 
-There is no client-side router, CMS or UI framework. The homepage and ECHOES product page are separate HTML documents. Unknown paths return the static 404 page.
+There is no client-side router, CMS or UI framework. The homepage, ECHOES and SwiftLocal product pages are separate HTML documents. Unknown paths return the static 404 page.
 
 ## Where content lives
 
 - `src/projects.ts` — the six public projects, their lifecycle and approved links
-- `src/render.ts` — the homepage, ECHOES product page and 404 markup
+- `src/render.ts` — the homepage, product pages and 404 markup
 - `src/echoes.ts` — ECHOES product copy, story summaries and the expandable character set
+- `src/swiftlocal.ts` and `src/swiftlocal.css` — SwiftLocal content and its green desktop-tool identity
+- `public/swiftlocal/` — product brand, verified interface screenshot and share image; provenance in `docs/SWIFTLOCAL_CONTENT.md`
 - `src/echoes.css` — ECHOES-only visual identity; the studio homepage keeps its own style
 - `public/echoes/` — verified artwork copied from ECHOES; provenance is in `docs/ECHOES_CONTENT.md`
 - `src/site.ts` — canonical origin, titles, descriptions, social image and the indexable page registry
@@ -31,6 +33,8 @@ The groups on the homepage come from the project flags, not from list position:
 - **Archive & future** — `archived`
 
 Lifecycle labels describe where a project is, such as `Windows release · Active development` or `Dormant · Future revival`. They intentionally avoid fast-changing patch versions.
+
+The SwiftLocal card and Projects dropdown open `/swiftlocal/`; its download CTAs point to the official GitHub Releases page.
 
 Only approved public destinations belong in the catalogue. The homepage ECHOES card links to `/echoes/`. The product page’s **Play ECHOES** links open `https://echoes.snugzap.com/`. Do not add localhost addresses, QA revisions, deploy previews, admin consoles or private service URLs.
 
@@ -49,7 +53,7 @@ Netlify sets `CONTEXT` when it runs `npm run build`:
 
 | `CONTEXT` | Result |
 | --- | --- |
-| `production` | Indexable homepage and product page, canonical sitemap, no preview `_headers` |
+| `production` | Indexable homepage and both product pages, canonical sitemap, no preview `_headers` |
 | `deploy-preview`, `branch-deploy`, `dev` | Fetchable pages with `noindex` |
 | missing or anything else | Same as a preview: `noindex` |
 

@@ -22,6 +22,7 @@ describe('static homepage', () => {
     expect(home).not.toContain('src/main.ts')
     expect(home).toContain('href="/src/styles.css"')
     expect(home).not.toContain('href="/src/echoes.css"')
+    expect(home).not.toContain('href="/src/swiftlocal.css"')
     expect(home).not.toContain('class="theme-echoes"')
     expect(home).toContain('<h1 id="hero-title">')
     expect(home.match(/<h1\b/g)).toHaveLength(1)
@@ -135,14 +136,15 @@ describe('indexability contexts', () => {
     expect(renderRobotsHeader('production')).toBeNull()
   })
 
-  it('publishes the homepage and ECHOES product page in the sitemap and keeps the 404 out', () => {
-    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/'])
+  it('publishes the homepage and both product pages in the sitemap and keeps the 404 out', () => {
+    expect(indexablePages.map((page) => canonicalUrl(page.path))).toEqual(['https://www.snugzap.com/', 'https://www.snugzap.com/echoes/', 'https://www.snugzap.com/swiftlocal/'])
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/</loc>')
     expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/echoes/</loc>')
+    expect(renderSitemap()).toContain('<loc>https://www.snugzap.com/swiftlocal/</loc>')
     expect(renderSitemap()).not.toContain('lastmod')
     expect(renderSitemap()).not.toContain('echoes.snugzap.com')
     expect(renderSitemap()).not.toContain('404')
-    expect(renderSitemap().match(/<loc>/g)).toHaveLength(2)
+    expect(renderSitemap().match(/<loc>/g)).toHaveLength(3)
 
     expect(missing).toContain('<meta name="robots" content="noindex" />')
     expect(missing).toContain('This page is not here.')

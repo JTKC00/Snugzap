@@ -19,7 +19,7 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home' | 'echoes'
+export type PageId = 'home' | 'echoes' | 'swiftlocal'
 
 export type SocialImage = {
   path: string
@@ -63,6 +63,22 @@ export const pages = [
       width: 1200,
       height: 630,
       alt: 'ECHOES — A fractured world. Stories that resonate. Arlo, Cillian and Luca against a frost-lit world.',
+    },
+  },
+  {
+    id: 'swiftlocal',
+    path: '/swiftlocal/',
+    indexable: true,
+    title: 'SwiftLocal — Local-first Windows File Workspace | Snugzap',
+    description:
+      'Meet SwiftLocal, a local-first Windows workspace for PDF, OCR, Office, image and media tasks. Explore the tools and download the full Windows x64 installer.',
+    themeColor: '#f5f7f4',
+    socialImage: {
+      path: '/swiftlocal/swiftlocal-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'SwiftLocal — Everyday files. One calmer workspace. A local-first Windows app for documents, images and media.',
     },
   },
 ] as const satisfies readonly SitePage[]

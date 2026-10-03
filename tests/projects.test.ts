@@ -81,9 +81,12 @@ describe('project catalogue', () => {
     expect(echoes?.links?.[0]).toMatchObject({ label: 'Explore ECHOES', primary: true })
     expect(echoes?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(swiftLocal)).toEqual([
+      '/swiftlocal/',
       'https://github.com/JTKC00/SwiftLocal/releases/latest',
       'https://github.com/JTKC00/SwiftLocal',
     ])
+    expect(swiftLocal?.links?.[0]).toMatchObject({ label: 'Explore SwiftLocal', primary: true })
+    expect(swiftLocal?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(kcalCue)).toEqual([
       'https://kcalcue.snugzap.com/',
       'https://github.com/JTKC00/KcalCue',

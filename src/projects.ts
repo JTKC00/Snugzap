@@ -57,10 +57,14 @@ export const projects: readonly Project[] = [
     featured: true,
     links: [
       {
+        label: 'Explore SwiftLocal',
+        href: '/swiftlocal/',
+        primary: true,
+      },
+      {
         label: 'Latest release',
         href: 'https://github.com/JTKC00/SwiftLocal/releases/latest',
         external: true,
-        primary: true,
       },
       {
         label: 'View repository',
