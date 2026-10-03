@@ -19,7 +19,7 @@ export const site = {
   },
 } as const
 
-export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue' | 'personal-finance-manager'
+export type PageId = 'home' | 'echoes' | 'swiftlocal' | 'kcalcue' | 'personal-finance-manager' | 'matterdock'
 
 export type SocialImage = {
   path: string
@@ -111,6 +111,22 @@ export const pages = [
       width: 1200,
       height: 630,
       alt: 'Personal Finance Manager — A clear place for everyday money. Transactions, budgets, savings and recurring costs.',
+    },
+  },
+  {
+    id: 'matterdock',
+    path: '/matterdock/',
+    indexable: true,
+    title: 'MatterDock — Local-first Matters, Follow-ups & Documents | Snugzap',
+    description:
+      'Explore MatterDock, a local-first Windows workspace for ongoing matters, timelines, actions, waiting items, contacts and documents, with context export and backups.',
+    themeColor: '#f3f1ea',
+    socialImage: {
+      path: '/matterdock/matterdock-og.jpg',
+      mimeType: 'image/jpeg',
+      width: 1200,
+      height: 630,
+      alt: 'MatterDock — Keep every matter on track. History, people, documents and one clear next action.',
     },
   },
 ] as const satisfies readonly SitePage[]

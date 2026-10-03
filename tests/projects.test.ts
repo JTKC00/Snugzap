@@ -102,7 +102,9 @@ describe('project catalogue', () => {
       href: 'https://github.com/JTKC00/KcalCue',
     })
     expect(kcalCue?.links?.[1]?.primary).not.toBe(true)
-    expect(linksOf(matterDock)).toEqual(['https://github.com/JTKC00/MatterDock'])
+    expect(linksOf(matterDock)).toEqual(['/matterdock/', 'https://github.com/JTKC00/MatterDock'])
+    expect(matterDock?.links?.[0]).toMatchObject({ label: 'Explore MatterDock', primary: true })
+    expect(matterDock?.links?.[0]?.external).not.toBe(true)
     expect(linksOf(finance)).toEqual(['/personal-finance-manager/', 'https://github.com/JTKC00/Personal-Finance-Manager'])
     expect(finance?.links?.[0]).toMatchObject({ label: 'Explore Personal Finance Manager', primary: true })
     expect(finance?.links?.[0]?.external).not.toBe(true)

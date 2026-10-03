@@ -1,0 +1,19 @@
+{
+  "source_repository": "JTKC00/MatterDock",
+  "source_commit": "747833bdae3d377b723792a382e7a84b5200a568",
+  "assets": [
+    {
+      "source": "build/icon.svg",
+      "local": "public/matterdock/icon.svg",
+      "local_sha256": "8c5981de1d1d0d92a658da02a7c930ed037ccb27218971052f8b39200e3d0ca8",
+      "source_sha256": "8c5981de1d1d0d92a658da02a7c930ed037ccb27218971052f8b39200e3d0ca8"
+    },
+    {
+      "source": "Chromium capture of the rendered MatterDock introduction hero",
+      "local": "public/matterdock/matterdock-og.jpg",
+      "local_sha256": "45dda507643714ab61cd329bdfe189a1ac37b03887075aa081622218e797c6b1",
+      "width": 1200,
+      "height": 630
+    }
+  ]
+}

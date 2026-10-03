@@ -2,6 +2,7 @@ import { echoes } from './echoes.ts'
 import { swiftlocal } from './swiftlocal.ts'
 import { kcalcue } from './kcalcue.ts'
 import { finance } from './personal-finance-manager.ts'
+import { matterdock } from './matterdock.ts'
 import {
   activeProjects,
   archivedProjects,
@@ -572,12 +573,78 @@ const renderFinance = (): string => `
   ${renderFooter()}
 `
 
+const renderMatterDock = (): string => `
+  ${renderHeader('matterdock')}
+  <main id="main-content">
+    <section class="md-hero md-shell" aria-labelledby="matterdock-title">
+      <div class="md-hero-copy">
+        <p class="md-eyebrow">MatterDock by Snugzap</p>
+        <h1 id="matterdock-title">MatterDock</h1>
+        <p class="md-tagline">Keep every matter on track.</p>
+        <p class="md-description">One place for an ongoing matter: its history, people, documents, follow-ups and the next action. A local-first desktop workspace for keeping the whole story together.</p>
+        <div class="md-actions">
+          <a class="md-button" href="${matterdock.repositoryUrl}" target="_blank" rel="noreferrer">View project on GitHub ${externalArrow}</a>
+          <a class="md-link" href="#workflow">Explore the workflow ↓</a>
+        </div>
+        <p class="md-status">Windows desktop app · Active development<br>Core records stay on your computer and work offline.</p>
+      </div>
+      <figure class="md-map" aria-label="What a matter brings together">
+        <div class="md-map-brand">
+          <img src="/matterdock/icon.svg" alt="MatterDock’s white M anchored in a blue dock on a navy background." width="72" height="72" fetchpriority="high" />
+          <div><strong>One matter</strong><span>The work you are handling</span></div>
+        </div>
+        <ul><li>Timeline</li><li>People &amp; organisations</li><li>Documents</li><li>Actions &amp; waiting</li></ul>
+        <div class="md-map-next"><strong>One clear next action</strong><span>The most important thing to do next</span></div>
+        <figcaption>Product structure · Keep the history and the next step connected.</figcaption>
+      </figure>
+    </section>
+    <section class="md-section md-shell" id="workflow" aria-labelledby="workflow-title">
+      <div class="md-heading">
+        <div><p class="md-eyebrow">A home for ongoing work</p><h2 id="workflow-title">Remember the history.<br>Keep the next step clear.</h2></div>
+        <p>An application, a supplier follow-up or a complaint: a matter is something that needs continued handling, with people, documents and a history of its own.</p>
+      </div>
+      <div class="md-workflow">
+        ${matterdock.workflow.map((item) => `<article><p class="md-workflow-label">${escapeHtml(item.name)}</p><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="md-section md-shell" id="workspace" aria-labelledby="workspace-title">
+      <div class="md-heading">
+        <div><p class="md-eyebrow">Keep the context close</p><h2 id="workspace-title">The details belong<br>with the matter.</h2></div>
+        <p>Bring the relevant people and files into the same workspace, then find the context you need when it is time to follow up.</p>
+      </div>
+      <div class="md-tools">
+        ${matterdock.tools.map((tool) => `<article><h3>${escapeHtml(tool.name)}</h3><p>${escapeHtml(tool.description)}</p></article>`).join('')}
+      </div>
+    </section>
+    <section class="md-portability md-shell" id="local-first" aria-labelledby="local-title">
+      <div>
+        <p class="md-eyebrow">Local records, open exports</p>
+        <h2 id="local-title">Your work stays<br>within reach.</h2>
+        <p>Core data stays on your computer. No account is required, and the workspace works offline. You decide when to export context or make a backup.</p>
+      </div>
+      <div class="md-portability-features">
+        <article><h3>Prepare Context</h3><p>Preview and redact a matter, then export it as Markdown, plain text or JSON. Preparing context does not call an AI service.</p></article>
+        <article><h3>Backup &amp; restore</h3><p>Back up workspace records and managed document copies, and restore a validated backup. Referenced original files need their own backup.</p></article>
+        <article><h3>Data portability</h3><p>Export JSON, CSV and managed document files for use outside MatterDock.</p></article>
+      </div>
+    </section>
+    <section class="md-start md-shell" id="project" aria-labelledby="project-title">
+      <p class="md-eyebrow">Follow MatterDock</p>
+      <h2 id="project-title">See what is being built.</h2>
+      <p>MatterDock is in active development for Windows. Explore the source, feature documentation and release status in the public GitHub repository.</p>
+      <div class="md-actions"><a class="md-button" href="${matterdock.repositoryUrl}" target="_blank" rel="noreferrer">View project on GitHub ${externalArrow}</a></div>
+    </section>
+  </main>
+  ${renderFooter()}
+`
+
 const pageRenderers: Record<RenderedPage, () => string> = {
   home: renderHome,
   echoes: renderEchoes,
   swiftlocal: renderSwiftLocal,
   kcalcue: renderKcalCue,
   'personal-finance-manager': renderFinance,
+  matterdock: renderMatterDock,
   'not-found': renderNotFound,
 }
 

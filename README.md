@@ -11,13 +11,15 @@ It gathers practical software, thoughtful tools, playable worlds and preserved e
 - Vitest for catalogue and SEO checks
 - Netlify static hosting
 
-There is no client-side router, CMS or UI framework. The homepage and four product introductions are separate HTML documents. Unknown paths return the static 404 page.
+There is no client-side router, CMS or UI framework. The homepage and five product introductions are separate HTML documents. Unknown paths return the static 404 page.
 
 ## Where content lives
 
 - `src/projects.ts` — the six public projects, their lifecycle and approved links
 - `src/render.ts` — the homepage, product pages and 404 markup
 - `src/echoes.ts` — ECHOES product copy, story summaries and the expandable character set
+- `src/matterdock.ts` and `src/matterdock.css` — MatterDock content, workflow overview and its local-workspace identity
+- `public/matterdock/` — approved M/dock icon and share image; provenance in `docs/MATTERDOCK_CONTENT.md`
 - `src/personal-finance-manager.ts` and its CSS — finance product content and the blue/white identity
 - `public/personal-finance-manager/` — verified PFM brand icon and share image; provenance in `docs/FINANCE_CONTENT.md`
 - `src/kcalcue.ts` and `src/kcalcue.css` — KcalCue’s meal-journal introduction and cream/green/coral branding
@@ -37,6 +39,8 @@ The groups on the homepage come from the project flags, not from list position:
 - **Archive & future** — `archived`
 
 Lifecycle labels describe where a project is, such as `Windows release · Active development` or `Dormant · Future revival`. They intentionally avoid fast-changing patch versions.
+
+The MatterDock card and Projects dropdown open `/matterdock/`; its product-page CTAs use the approved GitHub repository while public distribution remains under validation.
 
 The Personal Finance Manager card and Projects dropdown open `/personal-finance-manager/`; its product-page CTAs use the approved public GitHub repository. No public app URL is registered.
 
@@ -61,7 +65,7 @@ Netlify sets `CONTEXT` when it runs `npm run build`:
 
 | `CONTEXT` | Result |
 | --- | --- |
-| `production` | Indexable homepage and four product pages, canonical sitemap, no preview `_headers` |
+| `production` | Indexable homepage and five product pages, canonical sitemap, no preview `_headers` |
 | `deploy-preview`, `branch-deploy`, `dev` | Fetchable pages with `noindex` |
 | missing or anything else | Same as a preview: `noindex` |
 

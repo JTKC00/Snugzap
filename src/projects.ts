@@ -107,10 +107,14 @@ export const projects: readonly Project[] = [
     tags: ['Windows', 'Local-first', 'Matter tracking'],
     links: [
       {
+        label: 'Explore MatterDock',
+        href: '/matterdock/',
+        primary: true,
+      },
+      {
         label: 'View repository',
         href: 'https://github.com/JTKC00/MatterDock',
         external: true,
-        primary: true,
       },
     ],
   },
